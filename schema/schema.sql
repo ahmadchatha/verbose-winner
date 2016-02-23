@@ -1,79 +1,78 @@
 CREATE TABLE Drivers(
-	uid CHAR(20),
-	name CHAR(30),
-	email CHAR(30),
-	phone INTEGER,
-	home_addr CHAR(50),
-	rating REAL,
-	dob INTEGER,
-	tlc_num INTEGER,
-	lic_num INTEGER,
+	uid			serial,
+	name 		varchar(30),
+	email 		varchar(30),
+	phone 		integer,
+	home_addr 	varchar(50),
+	rating 		real,
+	dob 		integer,
+	tlc_num 	integer,
+	lic_num 	integer,
 	PRIMARY KEY (uid),
-	UNIQUE (email, tlc_number));
+	UNIQUE (email));
 
 CREATE TABLE Passengers(
-	uid CHAR(20),
-	name CHAR(30),
-	email CHAR(30),
-	phone INTEGER,
-	rating REAL,
-	trips_taken INTEGER,
+	uid 		serial,
+	name 		varchar(30),
+	email 		varchar(30),
+	phone 		integer,
+	rating 		real,
+	trips_taken integer,
 	PRIMARY KEY (uid),
 	UNIQUE (email));
 
 CREATE TABLE Addresses(
-	uid CHAR(20),
-	street1 CHAR(20),
-	street2 CHAR(20),
-	city CHAR(20),
-	state CHAR(2),
-	label CHAR(20),
-	zip INTEGER,
+	uid 		integer,
+	street1 	varchar(20),
+	street2 	varchar(20),
+	city 		varchar(20),
+	state 		varchar(2),
+	label 		varchar(20),
+	zip 		integer,
 	PRIMARY KEY (uid,label),
 	FOREIGN KEY (uid) REFERENCES Passengers ON DELETE CASCADE);
 
+CREATE TABLE Vehicle_class(
+	cname 			varchar(20),
+	hourly_rate 	real,
+	mileage_rate 	real,
+	PRIMARY KEY (cname));
+
 CREATE TABLE Vehicles(
-	plate_no CHAR(20),
-	make CHAR(20),
-	model CHAR(20),
-	capacity INTEGER,
-	cname CHAR(20) NOT NULL,
-	uid CHAR(20) NOT NULL,
+	plate_no 	varchar(20),
+	make 		varchar(20),
+	model 		varchar(20),
+	capacity 	integer,
+	cname 		varchar(20) NOT NULL,
+	uid 		integer NOT NULL,
 	PRIMARY KEY (plate_no),
 	FOREIGN KEY (uid) REFERENCES Drivers ON DELETE CASCADE,
 	FOREIGN KEY (cname) REFERENCES Vehicle_class);
 
-CREATE TABLE Vehicle_class(
-	cname CHAR(20),
-	hourly_rate REAL,
-	mileage_rate REAL,
-	PRIMARY KEY (cname));
-
 
 CREATE TABLE Trips(
-	tid INTEGER,
-	date DATE,
-	time TIME,
-	distance REAL,
-	status CHAR(20),
-	type CHAR(20),
-	est_amount REAL,
-	pick_addr CHAR(100),
-	drop_addr CHAR(100),
-	driver CHAR(20) NOT NULL,
-	passenger CHAR(20) NOT NULL,
+	tid 		serial,
+	date 		date,
+	time 		time,
+	distance 	real,
+	status 		varchar(20),
+	type 		varchar(20),
+	est_amount 	real,
+	pick_addr 	varchar(100),
+	drop_addr 	varchar(100),
+	driver 		integer NOT NULL,
+	passenger 	integer NOT NULL,
 	PRIMARY KEY (tid),
 	FOREIGN KEY (driver) REFERENCES Drivers (uid),
 	FOREIGN KEY (passenger) REFERENCES Passengers (uid));
 
 CREATE TABLE Transactions(
-	tran_id CHAR(200),
-	pay_type CHAR(20),
-	auth_id INTEGER,
-	time TIME,
-	date DATE,
-	amt_charged REAL,
-	tid INTEGER NOT NULL,
+	tran_id 	varchar(200),
+	pay_type 	varchar(20),
+	auth_id 	integer,
+	date_time	timestamp NOT NULL DEFAULT NOW(),
+	amt_charged real,
+	tid 		integer NOT NULL,
 	PRIMARY KEY (tran_id),
 	FOREIGN KEY (tid) REFERENCES Trips (tid),
 	UNIQUE(tid));
