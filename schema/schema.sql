@@ -1,13 +1,13 @@
 CREATE TABLE Drivers(
 	uid			serial,
-	name 		varchar(30),
-	email 		varchar(30),
-	phone 		integer,
-	home_addr 	varchar(50),
-	rating 		real,
-	dob 		integer,
-	tlc_num 	integer,
-	lic_num 	integer,
+	name		varchar(30),
+	email		varchar(30),
+	phone		integer,
+	home_addr	varchar(50),
+	rating		real,
+	dob			integer,
+	tlc_num		integer,
+	lic_num		integer,
 	PRIMARY KEY (uid),
 	UNIQUE (email));
 
@@ -17,7 +17,7 @@ CREATE TABLE Passengers(
 	email 		varchar(30),
 	phone 		integer,
 	rating 		real,
-	trips_taken integer,
+	trips_taken	integer,
 	PRIMARY KEY (uid),
 	UNIQUE (email));
 
@@ -34,8 +34,8 @@ CREATE TABLE Addresses(
 
 CREATE TABLE Vehicle_class(
 	cname 			varchar(20),
-	hourly_rate 	real,
-	mileage_rate 	real,
+	hourly_rate		real,
+	mileage_rate	real,
 	PRIMARY KEY (cname));
 
 CREATE TABLE Vehicles(
@@ -71,7 +71,7 @@ CREATE TABLE Transactions(
 	pay_type 	varchar(20),
 	auth_id 	integer,
 	date_time	timestamp NOT NULL DEFAULT NOW(),
-	amt_charged real,
+	amt_charged	real,
 	tid 		integer NOT NULL,
 	PRIMARY KEY (tran_id),
 	FOREIGN KEY (tid) REFERENCES Trips (tid),
