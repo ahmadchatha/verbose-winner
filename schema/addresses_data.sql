@@ -1,7 +1,7 @@
 INSERT INTO Addresses (uid, street1, street2, city, state, label, zip) 
 	VALUES (5506, '1 Police Plaza Path', NULL, 'New York', 'NY', 'Headquarters', '10007');
 INSERT INTO Addresses (uid, street1, street2, city, state, label, zip)
-	VALUES (5506, '205 E. Houston Street', NULL, 'New York', 'NY', 'Katz\'s', '10002');
+	VALUES (5506, '205 E. Houston Street', NULL, 'New York', 'NY', 'Katz''s', '10002');
 INSERT INTO Addresses (uid, street1, street2, city, state, label, zip)
 	VALUES (5506, '33 Fireplace Lane', NULL, 'Hicksville', 'NY', 'Home', '11801');
 INSERT INTO Addresses (uid, street1, street2, city, state, label, zip)
@@ -9,7 +9,7 @@ INSERT INTO Addresses (uid, street1, street2, city, state, label, zip)
 INSERT INTO Addresses (uid, street1, street2, city, state, label, zip)
 	VALUES (7176, '1 Broadway', NULL, 'New York', 'NY', 'Work', '10004');
 INSERT INTO Addresses (uid, street1, street2, city, state, label, zip)
-	VALUES (7176, '236 E. 36th Street', '4A', 'New York', 'NY', 'Joy\'s Place', '10016');
+	VALUES (7176, '236 E. 36th Street', '4A', 'New York', 'NY', 'Joy''s Place', '10016');
 INSERT INTO Addresses (uid, street1, street2, city, state, label, zip)
 	VALUES (3631, '311 W. 83rd Street', '3B', 'New York', 'NY', 'Home', '10024');
 INSERT INTO Addresses (uid, street1, street2, city, state, label, zip)
