@@ -2,10 +2,10 @@ CREATE TABLE Drivers(
 	uid			serial,
 	name		varchar(30),
 	email		varchar(30),
-	phone		integer,
+	phone		char(10) CHECK (char_length(phone) = 10),
 	home_addr	varchar(50),
-	rating		real,
-	dob			integer,
+	rating		real CHECK (rating >= 0 AND rating <= 5),
+	dob			date,
 	tlc_num		integer,
 	lic_num		integer,
 	PRIMARY KEY (uid),
@@ -15,8 +15,8 @@ CREATE TABLE Passengers(
 	uid 		serial,
 	name 		varchar(30),
 	email 		varchar(30),
-	phone 		integer,
-	rating 		real,
+	phone 		char(10) CHECK (char_length(phone) = 10),
+	rating 		real CHECK (rating >= 0 AND rating <= 5),
 	trips_taken	integer,
 	PRIMARY KEY (uid),
 	UNIQUE (email));
@@ -28,14 +28,14 @@ CREATE TABLE Addresses(
 	city 		varchar(20),
 	state 		varchar(2),
 	label 		varchar(20),
-	zip 		integer,
+	zip 		char(5) CHECK (char_length(zip) = 5),
 	PRIMARY KEY (uid,label),
 	FOREIGN KEY (uid) REFERENCES Passengers ON DELETE CASCADE);
 
 CREATE TABLE Vehicle_class(
 	cname 			varchar(20),
-	hourly_rate		real,
-	mileage_rate	real,
+	hourly_rate		real CHECK (hourly_rate > 0),
+	mileage_rate	real CHECK (mileage_rate > 0),
 	PRIMARY KEY (cname));
 
 CREATE TABLE Vehicles(
@@ -54,10 +54,10 @@ CREATE TABLE Trips(
 	tid 		serial,
 	date 		date,
 	time 		time,
-	distance 	real,
+	distance 	real CHECK (distance > 0),
 	status 		varchar(20),
 	type 		varchar(20),
-	est_amount 	real,
+	est_amount 	real CHECK (est_amount > 0),
 	pick_addr 	varchar(100),
 	drop_addr 	varchar(100),
 	driver 		integer NOT NULL,
