@@ -23,7 +23,7 @@ CREATE TABLE Passengers(
 
 CREATE TABLE Addresses(
 	uid 		integer,
-	street1 	varchar(20),
+	street1 	varchar(30),
 	street2 	varchar(20),
 	city 		varchar(20),
 	state 		varchar(2),
