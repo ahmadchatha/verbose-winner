@@ -9,9 +9,7 @@ INSERT INTO Transactions (tran_id, pay_type, auth_id, date_time, amt_charged, ti
 INSERT INTO Transactions (tran_id, pay_type, auth_id, date_time, amt_charged, tid) 
 	VALUES ('#91232BDD', 'AMEX', 8552441, '2016-02-24 22:12:47', 12.5, 29);
 INSERT INTO Transactions (tran_id, pay_type, auth_id, date_time, amt_charged, tid) 
-	VALUES ('#10223ACF', 'CASH', NULL, '2016-02-25 13:04:16', 50, 30);
-INSERT INTO Transactions (tran_id, pay_type, auth_id, date_time, amt_charged, tid) 
-	VALUES ('#62496BEA', 'VISA', 6375932, '2016-02-25 13:04:16', 100, 30);
+	VALUES ('#10223ACF', 'CASH', NULL, '2016-02-25 13:04:16', 150, 30);
 INSERT INTO Transactions (tran_id, pay_type, auth_id, date_time, amt_charged, tid) 
 	VALUES ('#83659DEF', 'MC', 37103852, '2016-02-26 21:45:21', 15.25, 31);
 INSERT INTO Transactions (tran_id, pay_type, auth_id, date_time, amt_charged, tid) 
