@@ -11,7 +11,7 @@ INSERT INTO Trips (date, time, distance, status, type, est_amount, pick_addr, dr
 INSERT INTO Trips (date, time, distance, status, type, est_amount, pick_addr, drop_addr, driver, passenger)
 	VALUES ('2016-02-25', '10:00:00', 11.8, 'completed', 'hourly', 150, '141 Worth Street, New York, NY 10007', '99 Margaret Corbin Dr, New York, NY 10040', '2271', '2497');	
 INSERT INTO Trips (date, time, distance, status, type, est_amount, pick_addr, drop_addr, driver, passenger)
-	VALUES ('2016-02-26', '21:15:00', 5.1, 'completed', 'mileage', 15.25, '1 Broadway, New York, NY 10004', '236 E. 36th Street, New York, NY 10016', '3519', '7176');	
+	VALUES ('2016-02-26', '21:15:00', 5.1, 'completed', 'mileage', 15.25, '1 Broadway, New York, NY 10004', '236 E. 36th Street, New York, NY 10016', '8674', '7176');	
 INSERT INTO Trips (date, time, distance, status, type, est_amount, pick_addr, drop_addr, driver, passenger)
 	VALUES ('2016-03-10', '13:00:00', 1.5, 'scheduled', 'mileage', 12.5, '1 Police Plaza Path, New York, NY 10007', '205 E. Houston Street, New York, NY 10002', '8217', '5506');
 INSERT INTO Trips (date, time, distance, status, type, est_amount, pick_addr, drop_addr, driver, passenger)
@@ -19,7 +19,7 @@ INSERT INTO Trips (date, time, distance, status, type, est_amount, pick_addr, dr
 INSERT INTO Trips (date, time, distance, status, type, est_amount, pick_addr, drop_addr, driver, passenger)
 	VALUES ('2016-03-11', '21:00:00', 7.9, 'scheduled', 'mileage', 44.5, '178 Broadway, Brooklyn, NY 11211', '215 E. 96th Street, New York, NY 10128', '3999', '9455');	
 INSERT INTO Trips (date, time, distance, status, type, est_amount, pick_addr, drop_addr, driver, passenger)
-	VALUES ('2016-03-12', '02:00:00', 8.4, 'scheduled', 'mileage', 23.5, '1 Broadway, New York, NY 10004', '327 E. 101st Street, New York, NY 10029', '8673', '7176');	
+	VALUES ('2016-03-12', '02:00:00', 8.4, 'scheduled', 'mileage', 23.5, '1 Broadway, New York, NY 10004', '327 E. 101st Street, New York, NY 10029', '5666', '7176');	
 INSERT INTO Trips (date, time, distance, status, type, est_amount, pick_addr, drop_addr, driver, passenger)
 	VALUES ('2016-03-14', '18:00:00', 7.4, 'scheduled', 'mileage', 21, '311 W. 83rd Street, New York, NY 10024', '61 Wythe Ave, Brooklyn, NY 11249', '2727', '3631');
 	
