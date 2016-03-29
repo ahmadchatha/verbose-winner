@@ -179,7 +179,7 @@
                                onFocus=geolocate() type="text"></input>
                               </div>
                           </div>
-                          <button type="submit" class="btn-u btn-u-blue">Calculate Prices</button>
+                          <button type="button" onClick=calculateOneWay() class="btn-u btn-u-blue">Calculate Prices</button>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="hourly">
                         <div class="form-group">
@@ -196,8 +196,10 @@
                         </div>
                         <button type="submit" class="btn-u btn-u-blue">Calculate Prices</button>
                     </div>
+                    <div id="results"> </div>
                   </div>
-                </form>                                                    
+                  <div id="reserve"> </div> 
+                </form>                                                   
             </div>
         </div>
         <!-- End Basic Form -->
@@ -341,6 +343,31 @@
       function fillInAddress2() {
         // Get the place details from the autocomplete object.
         var place = autocomplete2.getPlace();
+      }
+
+      function calculateOneWay(){
+        var input = document.getElementById('autocomplete').value;
+        var input2 = document.getElementById('autocomplete2').value;
+        var url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&';
+        var params = 'origins='+input + '&destinations='+input2 + '&key=AIzaSyDHOqzhoqG4uUPgI62szNJ9S2PslgVC2DM';
+        var distanceMatrix  = new google.maps.DistanceMatrixService();
+        var distanceRequest = { origins: [input], destinations: [input2], unitSystem: google.maps.UnitSystem.IMPERIAL, travelMode: google.maps.TravelMode.DRIVING};
+        distanceMatrix.getDistanceMatrix(distanceRequest, function(response, status) {
+            if (status != google.maps.DistanceMatrixStatus.OK) {
+                alert('Error was: ' + status);
+            }
+            else {
+                var distance = (response.rows[0].elements[0].distance.text);
+                var value = parseFloat(distance.replace(" mi", ""));
+                var f_value = (value*3.0).toFixed(2);
+                var t_value = (value*3.0+parseFloat(5)).toFixed(2);
+                console.log(value);
+                var results = "<h5><b>Distance:</b> "+value + " miles  <b> Base Fare:</b> $5 <b>Total Fare:</b> 5 + "+           value + '* 3.0' + " = $" + t_value + "</h5>";
+                document.getElementById("results").innerHTML = results;
+                var reserve = "<button type=\"button\">Proceed to Reservation</button>";
+                document.getElementById("reserve").innerHTML = reserve;
+            }
+        })
       }
 
       // Bias the autocomplete object to the user's geographical location,
