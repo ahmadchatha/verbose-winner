@@ -62,12 +62,14 @@ CREATE TABLE Trips(
 	drop_addr 	varchar(100),
 	driver 		integer NOT NULL,
 	passenger 	integer NOT NULL,
+	drating		real CHECK (drating >= 0 AND drating <= 5),
+	prating		real CHECK (prating >= 0 AND prating <= 5),
 	PRIMARY KEY (tid),
 	FOREIGN KEY (driver) REFERENCES Drivers (uid),
 	FOREIGN KEY (passenger) REFERENCES Passengers (uid));
 
 CREATE TABLE Transactions(
-	tran_id 	varchar(200),
+	tran_id 	serial,
 	pay_type 	varchar(20),
 	auth_id 	integer,
 	date_time	timestamp NOT NULL DEFAULT NOW(),
