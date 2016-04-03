@@ -15,6 +15,7 @@ Read about it online.
 """
 
 import os
+import json
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from flask import Flask, request, render_template, g, redirect, Response
@@ -95,20 +96,27 @@ def index():
 
   See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
   """
+  script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
+  rel_path = "queries/vehicle_class.sql"
+  abs_file_path = os.path.join(script_dir, rel_path)
+  f = open(abs_file_path, 'r')
+  query = f.read()
+  f.close()
+  cursor = g.conn.execute(query.rstrip())
+  rates = []
+  for row in cursor:
+    rates.append(list(row))
+  data = {'rates':rates}
+  return render_template("index.html", data=data)
 
-  # DEBUG: this is debugging code to see what request looks like
-  print request.args
-  names = ['A','B']
-  context = dict(data = names)
-  return render_template("index.html", **context)
 
 
 
-
-@app.route('/login')
-def login():
-    abort(401)
-    this_is_never_executed()
+@app.route('/reservations')
+def reservations():
+  user_id = request.args.get('id')
+  print user_id
+  return render_template("reservations.html")
 
 
 if __name__ == "__main__":
