@@ -118,7 +118,7 @@ def reservations():
   print user_id
   return render_template("reservations.html")
 
-@app.rout('/drivers') 
+@app.route('/drivers') 
 def drivers():
   user_id = request.args.get('id')
   print user_id
