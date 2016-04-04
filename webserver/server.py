@@ -143,7 +143,7 @@ def drivers_ct():
   amount = request.form['tamtcharged']
   paytype = request.form['tpaytype']
   prating = request.form['tpassrating']
-  if (paytype = 'AMEX' or paytype='VISA' or paytype='MC'):
+  if (paytype=='AMEX' or paytype=='VISA' or paytype=='MC'):
     # generating random number for auth_id, since we don't have an actual credit card processing system...
     auth = random.randint(1,2147483647)
     stmt = "INSERT INTO Transactions (pay_type, auth_id, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, auth, amount, tid);

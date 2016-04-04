@@ -400,7 +400,7 @@
 
         // show results of insert of trip info
         data = {{data| tojson }};
-        if (data.error == 0) {
+        if (data.error === 0) {
             results = "<ul><li>Trip information successfully entered!</li></ul>";
         }
         else {
