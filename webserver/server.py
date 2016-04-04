@@ -118,6 +118,7 @@ def reservations():
   print user_id
   return render_template("reservations.html")
 
+#drivers main page
 @app.route('/drivers') 
 def drivers():
   user_id = request.args.get('id')
@@ -131,6 +132,30 @@ def drivers():
     reservations.append(list(row))
   data = {'reservations':reservations}
   return render_template("drivers.html", data=data)  
+
+#drivers after form submission of trip info
+@app.route('/drivers_ct', methods=['POST'])
+def drivers_ct():
+  user_id = request.args.get('id')
+  print user_id
+  # get values from form
+  tid = request.form['comptid']
+  amount = request.form['tamtcharged']
+  paytype = request.form['tpaytype']
+  prating = request.form['tpassrating']
+  if (paytype = 'AMEX' or paytype='VISA' or paytype='MC'):
+    # generating random number for auth_id, since we don't have an actual credit card processing system...
+    auth = random.randint(1,2147483647)
+    stmt = "INSERT INTO Transactions (pay_type, auth_id, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, auth, amount, tid);
+  else:
+    stmt = "INSERT INTO Transactions (pay_type, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, amount, tid);
+  try: 
+    cursor = g.conn.execute(query.rstrip())
+    data = {'error':0}
+    return render_template("drivers_ct.html", data=data)
+  except exc.SQLAlchemyError as e:
+    data = {'error':1, 'message':str(e)}
+    return render_template("drivers_ct.html", data=data)
 
 
 if __name__ == "__main__":
