@@ -118,6 +118,20 @@ def reservations():
   print user_id
   return render_template("reservations.html")
 
+@app.rout('/drivers') 
+def drivers():
+  user_id = request.args.get('id')
+  print user_id
+  # for reference, column indices are: 0=name, 1=phone, 2=date, 3=time, 4=type, 5=distance, 6=pick_addr, 7=drop_add, 8=est_amount
+  query = "SELECT P.name, P.phone, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\' AS time, T.type, T.distance, T.pick_addr, T.drop_addr, T.est_amount" + \
+    "FROM Trips T, Passengers P WHERE T.driver={} T.passenger = P.uid AND T.status!=\'completed\' ORDER BY T.date, T.time".format(user_id)
+  cursor = g.conn.execute(query.rstrip())
+  reservations = []
+  for row in cursor: 
+    reservations.append(list(row))
+  data = {'reservations':reservations}
+  return render_template("drivers.html", data=data)  
+
 
 if __name__ == "__main__":
   import click
