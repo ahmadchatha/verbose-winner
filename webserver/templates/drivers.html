@@ -222,6 +222,7 @@
                             </div>
                             <button type="submit" class="btn-u btn-u-blue">Submit Date Range</button>
                         </form>
+                    </div>
                     <div role="tabpanel" class="tab-pane active" id="add-vehicle">
                         <form method="POST" action="/drivers_av">
                             <div class="form-group">
@@ -403,9 +404,9 @@
     }
 </script>
 <script type="text/javascript">
-    function calculateOneWay(){
+    function getCurrentReservations(){
         var reservations = get_reservations();
-        var results = "";
+        var results = "<ul>";
         for(var i = 0; i < reservations.length; i++){
             if (reservations[i][4] == "hourly") {
                 results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone></b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+"<b>Type</b>: "+reservations[i][4]+" <b>Length</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+"</li>";
@@ -414,6 +415,7 @@
                 results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone></b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+"<b>Type</b>: "+reservations[i][4]+" <b>Distance</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+"</li>";
             }
         }
+        result = result + "</ul>";
         document.getElementById("results").innerHTML = results;
     }
 </script>
