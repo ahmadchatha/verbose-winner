@@ -409,10 +409,10 @@
         var results = "<ul>";
         for(var i = 0; i < reservations.length; i++){
             if (reservations[i][4] == "hourly") {
-                results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone></b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+"<b>Type</b>: "+reservations[i][4]+" <b>Length</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+"</li>";
+                results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone</b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+"<b>Type</b>: "+reservations[i][4]+" <b>Length</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+"</li>";
             }
             else {
-                results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone></b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+"<b>Type</b>: "+reservations[i][4]+" <b>Distance</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+"</li>";
+                results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone</b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+"<b>Type</b>: "+reservations[i][4]+" <b>Distance</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+" <b>Trip ID</b>: "+reservations[i][9]+"</li>";
             }
         }
         results = results + "</ul>";
