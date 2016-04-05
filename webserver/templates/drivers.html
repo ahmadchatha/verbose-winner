@@ -415,8 +415,11 @@
         url: '/get-current-reservations?id=' + get_user(),
         dataType: 'json',
         success: function(data) {
-            var reservations = data.reservations;
-            if (reservations != null)
+            console.log('--data--')
+            console.log(data)
+            console.log('--data--')
+            var reservations = data.data.reservations;
+            if (reservations.length !== 0)
             {
                 var results = "<ul>";
                 for(var i = 0; i < reservations.length; i++){
