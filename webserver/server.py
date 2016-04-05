@@ -18,6 +18,7 @@ import os
 import json
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
+from sqlalchemy import exc
 from flask import Flask, request, render_template, g, redirect, Response, jsonify
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
@@ -130,6 +131,25 @@ def confirm_user():
   else:
     results = []
   return jsonify(data= results)
+
+
+@app.route('/create-user')
+def create_user():
+  name = request.args.get('name')
+  email = request.args.get('email')
+  phone = request.args.get('phone')
+  query = "INSERT INTO Passengers (name, email, phone) VALUES (\'"+ name +"\', \'"+ email +"\', \'"+ phone +"\') RETURNING uid;"
+  try: 
+      cursor = g.conn.execute(query)
+      record = cursor.fetchone()
+      results = list(record)
+      data = {'error': 0, 'data': results}
+      return jsonify(data= data)
+  except exc.SQLAlchemyError as e:
+      data = {'error':1, 'message':str(e)}
+      return jsonify(data= data)
+
+
 
 #drivers page
 @app.route('/drivers')
