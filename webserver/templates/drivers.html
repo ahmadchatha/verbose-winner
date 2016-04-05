@@ -102,7 +102,7 @@
 
                     <!-- Pricing -->                        
                     <li class="active">
-                        <a href="/drivers" >
+                        <a href="/drivers?id=2271" >
                             Drivers
                         </a>
                     </li>
@@ -158,6 +158,8 @@
             </div>
             <div class="panel-body"> 
                 <form class="margin-bottom-40" role="form">
+                    <!-- hidden field for tracking section where button was clicked -->
+                    <input type="hidden" name="sectionID">
                   <ul class="nav nav-tabs">
                     <li class="active"><a href="#current-reservations" data-toggle="tab" aria-expanded="false">Current Reservations</a></li>
                     <li ><a href="#complete-trip" data-toggle="tab" aria-expanded="false">Enter Trip Info</a></li>
@@ -172,108 +174,100 @@
                         <button type="button" onClick=getCurrentReservations() class="btn-u btn-u-blue">Show Current Reservations</button>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="complete-trip">
-                        <form method="POST" action="/drivers_ct"> 
-                            <div class="form-group">
-                                  <label for="completedTrip">Trip ID</label>
-                                  <div id="completedTrip">
-                                    <input id="comptid" class="form-control" placeholder="Enter Completed Trip ID"
-                                   type="text" name="comptid"></input>
-                                  </div>
-                            </div>
-                            <div class="form-group">
-                                  <label for="amountCharged">Amount Charged</label>
-                                  <div id="amountCharged">
-                                    <input id="tamtcharged" class="form-control" placeholder="Enter Amount Charged"
-                                   type="text" name="tamtcharged"></input>
-                                  </div>
-                            </div>
-                            <div class="form-group">
-                                  <label for="paymentType">Payment Type</label>
-                                  <div id="paymentType">
-                                    <input id="tpaytype" class="form-control" placeholder="Enter Payment Type"
-                                   type="text" name="tpaytype"></input>
-                                  </div>
-                            </div>
-                            <div class="form-group">
-                                  <label for="passengerRating">Passenger Rating</label>
-                                  <div id="passengerRating">
-                                    <input id="tpassrating" class="form-control" placeholder="Enter Passenger Rating"
-                                   type="text" name="tpassrating"></input>
-                                  </div>
-                            </div>
-                            <button type="submit" class="btn-u btn-u-blue">Submit Trip Data</button>
-                        </form>
+                        <div class="form-group">
+                              <label for="completedTrip">Trip ID</label>
+                              <div id="completedTrip">
+                                <input id="comptid" class="form-control" placeholder="Enter Completed Trip ID"
+                               type="text" name="comptid"></input>
+                              </div>
+                        </div>
+                        <div class="form-group">
+                              <label for="amountCharged">Amount Charged</label>
+                              <div id="amountCharged">
+                                <input id="tamtcharged" class="form-control" placeholder="Enter Amount Charged"
+                               type="text" name="tamtcharged"></input>
+                              </div>
+                        </div>
+                        <div class="form-group">
+                              <label for="paymentType">Payment Type</label>
+                              <div id="paymentType">
+                                <input id="tpaytype" class="form-control" placeholder="Enter Payment Type"
+                               type="text" name="tpaytype"></input>
+                              </div>
+                        </div>
+                        <div class="form-group">
+                              <label for="passengerRating">Passenger Rating</label>
+                              <div id="passengerRating">
+                                <input id="tpassrating" class="form-control" placeholder="Enter Passenger Rating"
+                               type="text" name="tpassrating"></input>
+                              </div>
+                        </div>
+                        <button type="submit" class="btn-u btn-u-blue" onclick="set_source('CompTrip')">Submit Trip Data</button>
                     </div>
-                    <div role="tabpanel" class="tab-pane active" id="past-trips">
-                        <form method="POST" action="/drivers_pt"> 
-                            <div class="form-group">
-                                  <label for="pastTimeFrom">From Date</label>
-                                  <div id="pastTimeFrom">
-                                    <input id="fromdate" class="form-control" placeholder="Enter From Date"
-                                   type="text" name="fromdate"></input>
-                                  </div>
-                            </div>
-                            <div class="form-group">
-                                  <label for="pastTimeTo">To Date</label>
-                                  <div id="pastTimeTo">
-                                    <input id="todate" class="form-control" placeholder="Enter To Date"
-                                   type="text" name="todate"></input>
-                                  </div>
-                            </div>
-                            <button type="submit" class="btn-u btn-u-blue">Submit Date Range</button>
-                        </form>
+                    <div role="tabpanel" class="tab-pane active" id="past-trips"> 
+                        <div class="form-group">
+                              <label for="pastTimeFrom">From Date</label>
+                              <div id="pastTimeFrom">
+                                <input id="fromdate" class="form-control" placeholder="Enter From Date"
+                               type="text" name="fromdate"></input>
+                              </div>
+                        </div>
+                        <div class="form-group">
+                              <label for="pastTimeTo">To Date</label>
+                              <div id="pastTimeTo">
+                                <input id="todate" class="form-control" placeholder="Enter To Date"
+                               type="text" name="todate"></input>
+                              </div>
+                        </div>
+                        <button type="submit" class="btn-u btn-u-blue" onclick="set_source('PastTrips')">Submit Date Range</button>
                     </div>
                     <div role="tabpanel" class="tab-pane active" id="add-vehicle">
-                        <form method="POST" action="/drivers_av">
-                            <div class="form-group">
-                                  <label for="plate">Plate Number</label>
-                                  <div id="plate">
-                                    <input id="platenum" class="form-control" placeholder="Enter Plate Number"
-                                   type="text" name="platenum"></input>
-                                  </div>
-                            </div>
-                            <div class="form-group">
-                                  <label for="make">Make</label>
-                                  <div id="make">
-                                    <input id="vmake" class="form-control" placeholder="Enter Make"
-                                   type="text" name="vmake"></input>
-                                  </div>
-                            </div>
-                            <div class="form-group">
-                                  <label for="model">Model</label>
-                                  <div id="model">
-                                    <input id="vmodel" class="form-control" placeholder="Enter Model"
-                                   type="text" name="vmodel"></input>
-                                  </div>
-                            </div>
-                            <div class="form-group">
-                                  <label for="capacity">Capacity</label>
-                                  <div id="capacity">
-                                    <input id="vcapacity" class="form-control" placeholder="Enter Capacity"
-                                   type="text" name="vcapacity"></input>
-                                  </div>
-                            </div>
-                            <div class="form-group">
-                                  <label for="class">Class</label>
-                                  <div id="class">
-                                    <input id="vclass" class="form-control" placeholder="Enter Vehicle Class"
-                                   type="text" name="vclass"></input>
-                                  </div>
-                            </div>
-                            <button type="submit" class="btn-u btn-u-blue">Add Vehicle</button>
-                        </form>
+                        <div class="form-group">
+                              <label for="plate">Plate Number</label>
+                              <div id="plate">
+                                <input id="platenum" class="form-control" placeholder="Enter Plate Number"
+                               type="text" name="platenum"></input>
+                              </div>
+                        </div>
+                        <div class="form-group">
+                              <label for="make">Make</label>
+                              <div id="make">
+                                <input id="vmake" class="form-control" placeholder="Enter Make"
+                               type="text" name="vmake"></input>
+                              </div>
+                        </div>
+                        <div class="form-group">
+                              <label for="model">Model</label>
+                              <div id="model">
+                                <input id="vmodel" class="form-control" placeholder="Enter Model"
+                               type="text" name="vmodel"></input>
+                              </div>
+                        </div>
+                        <div class="form-group">
+                              <label for="capacity">Capacity</label>
+                              <div id="capacity">
+                                <input id="vcapacity" class="form-control" placeholder="Enter Capacity"
+                               type="text" name="vcapacity"></input>
+                              </div>
+                        </div>
+                        <div class="form-group">
+                              <label for="class">Class</label>
+                              <div id="class">
+                                <input id="vclass" class="form-control" placeholder="Enter Vehicle Class"
+                               type="text" name="vclass"></input>
+                              </div>
+                        </div>
+                        <button type="submit" class="btn-u btn-u-blue" onclick="set_source('AddVehicle')">Add Vehicle</button>
                     </div>
                     <div role="tabpanel" class="tab-pane active" id="delete-vehicle">
-                        <form method="POST" action="/drivers_dv">
-                            <div class="form-group">
-                                  <label for="deletePlate">Plate Number</label>
-                                  <div id="deletePlate">
-                                    <input id="rmplate" class="form-control" placeholder="Enter Vehicle Class"
-                                   type="text" name="rmplate"></input>
-                                  </div>
-                            </div>                                
-                            <button type="submit" class="btn-u btn-u-blue">Delete Vehicle</button>
-                        </form>
+                        <div class="form-group">
+                              <label for="deletePlate">Plate Number</label>
+                              <div id="deletePlate">
+                                <input id="rmplate" class="form-control" placeholder="Enter Vehicle Class"
+                               type="text" name="rmplate"></input>
+                              </div>
+                        </div>                                
+                        <button type="submit" class="btn-u btn-u-blue" onclick="set_source('DelVehicle')">Delete Vehicle</button>
                     </div>
                     <div id="results"> </div>
                   </div>
@@ -296,7 +290,7 @@
                     </div>
                     <div class="caption">
                         <h3><a class="hover-effect" href="#">Airports</a></h3>
-                        <p>We offer Pickup/Drop-off services at all major and local Airpots in and around NYC.</p>
+                        <p>We offer Pickup/Drop-off services at all major and local Airports in and around NYC.</p>
                     </div>
                 </div>
             </div>
@@ -398,9 +392,12 @@
         OwlCarousel.initOwlCarousel();        
         ParallaxSlider.initParallaxSlider();
     });
-    function get_reservations(){
+    function get_reservations() {
         var data = {{ data| tojson }};
         return data.reservations;
+    }
+    function set_source(section) {
+        document.getElementById("sectionID").value = section;
     }
 </script>
 <script type="text/javascript">
