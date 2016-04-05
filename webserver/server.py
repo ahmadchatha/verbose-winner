@@ -18,7 +18,7 @@ import os
 import json
 from sqlalchemy import *
 from sqlalchemy.pool import NullPool
-from flask import Flask, request, render_template, g, redirect, Response
+from flask import Flask, request, render_template, g, redirect, Response, jsonify
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -118,6 +118,18 @@ def reservations():
   user_id = request.args.get('id')
   print user_id
   return render_template("reservations.html")
+
+@app.route('/confirm-user')
+def confirm_user():
+  user_id = request.args.get('id')
+  query = "SELECT U.uid FROM Passengers U WHERE U.uid={}".format(user_id)
+  cursor = g.conn.execute(query)
+  record = cursor.fetchone()
+  if record != None:
+    results = list(record)
+  else:
+    results = []
+  return jsonify(data= results)
 
 #drivers page
 @app.route('/drivers') 
