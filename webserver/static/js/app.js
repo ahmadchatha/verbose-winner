@@ -1,5 +1,4 @@
 /** @jsx React.DOM */
-
 var GoogleAPI = React.createClass({
   getInitialState: function() {
     return {

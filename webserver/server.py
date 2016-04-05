@@ -132,6 +132,7 @@ def confirm_user():
     results = []
   return jsonify(data= results)
 
+
 @app.route('/create-user')
 def create_user():
   name = request.args.get('name')
@@ -147,6 +148,7 @@ def create_user():
   except exc.SQLAlchemyError as e:
       data = {'error':1, 'message':str(e)}
       return jsonify(data= data)
+
 
 
 #drivers page
