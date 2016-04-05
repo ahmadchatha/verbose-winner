@@ -173,6 +173,7 @@ def drivers():
 
 @app.route('/admins')
 def admins(): 
+  user_id = request.args.get('id')
   query1 = "SELECT P.uid, P.name, P.email, COUNT(P.uid), SUM(TR.amt_charged) FROM Passengers P, Trips T, Transactions TR WHERE" + \
     "P.uid = T.passenger AND T.tid = TR.tid GROUP BY P.uid, P.name, P.email ORDER BY COUNT(P.uid) DESC LIMIT 5"
   query2 = "SELECT D.uid, D.name, D.email, COUNT(D.uid), SUM(TR.amt_charged) FROM Drivers D, Trips T, Transactions TR WHERE" + \
@@ -197,7 +198,7 @@ def admins():
   lowrd = []
   for row in cursor:
     lowrd.append(list(row))
-  data = {'topfc':topfc, 'topfd':topfd, 'toprd':toprd, 'lowrd':lowrd}
+  data = {'topfc':topfc, 'topfd':topfd, 'toprd':toprd, 'lowrd':lowrd, 'id':user_id}
   return render_template("drivers.html", data=data)
 
 if __name__ == "__main__":
