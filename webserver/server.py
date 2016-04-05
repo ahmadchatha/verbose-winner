@@ -129,7 +129,7 @@ def drivers():
     # for reference, column indices are: 0=name, 1=phone, 2=date, 3=time, 4=type, 5=distance, 6=pick_addr, 7=drop_add, 8=est_amount, 9=tid
     query = "SELECT P.name, P.phone, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
       "T.est_amount, T.tid FROM Trips T, Passengers P WHERE T.driver={} AND T.passenger = P.uid AND T.status!=\'completed\' ORDER BY T.date, T.time".format(user_id)
-    cursor = g.conn.execute(query.rstrip())
+    cursor = g.conn.execute(query)
     reservations = []
     for row in cursor: 
       reservations.append(list(row))
@@ -150,7 +150,7 @@ def drivers():
     else:
       stmt = "INSERT INTO Transactions (pay_type, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, amount, tid);
     try: 
-      cursor = g.conn.execute(query.rstrip())
+      cursor = g.conn.execute(query)
       data = {'error':0}
       return render_template("drivers_ct.html", data=data)
     except exc.SQLAlchemyError as e:
@@ -167,6 +167,13 @@ def drivers():
       reservations.append(list(row))
     data = {'reservations':reservations}
     return render_template("drivers.html", data=data)  
+
+@app.route('/admins')
+def admins(): 
+  query1 = "SELECT P.uid, P.name, P.email, COUNT(P.uid), SUM(TR.amt_charged) FROM Passengers P, Trips T, Transactions TR WHERE" + \
+    "P.uid = T.passenger AND T.tid = TR.tid GROUP BY P.uid, P.name, P.email ORDER BY COUNT(P.uid) DESC LIMIT 5";
+  query2 = "SELECT D.uid, D.name, D.email, COUNT(D.uid), SUM(TR.amt_charged) FROM Drivers D, Trips T, Transactions TR WHERE" + \
+    "D.uid = T.driver AND T.tid = TR.tid GROUP BY D.uid, D.name, D.email ORDER BY COUNT(D.uid) DESC LIMIT 5";
 
 
 if __name__ == "__main__":
