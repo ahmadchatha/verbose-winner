@@ -164,7 +164,6 @@
               <div class="tab-content">
                 <!-- Current Reservations pane -->
                 <div role="tabpanel" class="tab-pane active" id="admin-stats">
-                    <button type="button" onClick=getCurrentReservations() class="btn-u btn-u-blue">Show Current Reservations</button>
                     <h4> Top 5 Most Frequent Customers </h4>
                     <div id="resultsTopFC"> </div>
                     <h4> Top 5 Most Frequent Drivers </h4>
@@ -290,6 +289,7 @@
 <script type="text/javascript" src="/static/assets/js/plugins/parallax-slider.js"></script>
 <script type="text/javascript">
     jQuery(document).ready(function() {
+        user = get_user(); 
         if(user == null){
             console.log('no user');
         }
@@ -303,41 +303,41 @@
         var TopFC = data.topfc;
         var resultsTopFC = "<ul>"
         for (var i = 0; i < TopFC.length; i++) {
-            resultsTopFC = resultsTopFC + "<li><b>UID<\b>: "+TopFC[i][0]+ " <b>Name<\b>: "+TopFC[i][1]+" <b>Email<\b>: "+TopFC[i][2]+
-                " <b>Total Trips</b>: "+TopFC[i][3]+" <b>Total Charged</b>: "+TopFC[i][4]+"</li>";
+            resultsTopFC = resultsTopFC + "<li><b>UID</b>: "+TopFC[i][0]+ " <b>Name</b>: "+TopFC[i][1]+" <b>Email</b>: "+TopFC[i][2]+
+                " <b>Total Trips</b>: "+TopFC[i][3]+" <b>Total Charged</b>: $"+TopFC[i][4]+"</li>";
         }
         resultsTopFC = resultsTopFC + "</ul>";
-        document.getElementByID("resultsTopFC").innerHTML = resultsTopFC;
+        document.getElementById("resultsTopFC").innerHTML = resultsTopFC;
 
         //populate top 5 most frequent drivers
         var TopFD = data.topfd;
         var resultsTopFD = "<ul>"
         for (var i = 0; i < TopFD.length; i++) {
-            resultsTopFD = resultsTopFD + "<li><b>UID<\b>: "+TopFD[i][0]+ " <b>Name<\b>: "+TopFD[i][1]+" <b>Email<\b>: "+TopFD[i][2]+
-                " <b>Total Trips</b>: "+TopFD[i][3]+" <b>Total Charged</b>: "+TopFD[i][4]+"</li>";
+            resultsTopFD = resultsTopFD + "<li><b>UID</b>: "+TopFD[i][0]+ " <b>Name</b>: "+TopFD[i][1]+" <b>Email</b>: "+TopFD[i][2]+
+                " <b>Total Trips</b>: "+TopFD[i][3]+" <b>Total Charged</b>: $"+TopFD[i][4]+"</li>";
         }
         resultsTopFD = resultsTopFD + "</ul>";
-        document.getElementByID("resultsTopFD").innerHTML = resultsTopFD;
+        document.getElementById("resultsTopFD").innerHTML = resultsTopFD;
 
         //populate top 5 highest ranked drivers
         var TopRD = data.toprd;
         var resultsTopRD = "<ul>"
         for (var i = 0; i < TopRD.length; i++) {
-            resultsTopRD = resultsTopRD + "<li><b>UID<\b>: "+TopRD[i][0]+ " <b>Name<\b>: "+TopRD[i][1]+" <b>Email<\b>: "+TopRD[i][2]+
-                " <b>Rating</b>: "+TopRD[i][3]+" <b>Total Charged</b>: "+TopRD[i][4]+"</li>";
+            resultsTopRD = resultsTopRD + "<li><b>UID</b>: "+TopRD[i][0]+ " <b>Name</b>: "+TopRD[i][1]+" <b>Email</b>: "+TopRD[i][2]+
+                " <b>Rating</b>: "+TopRD[i][3]+" <b>Total Charged</b>: $"+TopRD[i][4]+"</li>";
         }
         resultsTopRD = resultsTopRD + "</ul>";
-        document.getElementByID("resultsTopRD").innerHTML = resultsTopRD;
+        document.getElementById("resultsTopRD").innerHTML = resultsTopRD;
 
         //populate bottom 5 lowest ranked drivers
         var LowRD = data.lowrd;
         var resultsLowRD = "<ul>"
         for (var i = 0; i < LowRD.length; i++) {
-            resultsLowRD = resultsLowRD + "<li><b>UID<\b>: "+LowRD[i][0]+ " <b>Name<\b>: "+LowRD[i][1]+" <b>Email<\b>: "+LowRD[i][2]+
-                " <b>Rating</b>: "+LowRD[i][3]+" <b>Total Charged</b>: "+LowRD[i][4]+"</li>";
+            resultsLowRD = resultsLowRD + "<li><b>UID</b>: "+LowRD[i][0]+ " <b>Name</b>: "+LowRD[i][1]+" <b>Email</b>: "+LowRD[i][2]+
+                " <b>Rating</b>: "+LowRD[i][3]+" <b>Total Charged</b>: $"+LowRD[i][4]+"</li>";
         }
         resultsLowRD = resultsLowRD + "</ul>";
-        document.getElementByID("resultsLowRD").innerHTML = resultsLowRD;
+        document.getElementById("resultsLowRD").innerHTML = resultsLowRD;
     });
 
     function get_user(){

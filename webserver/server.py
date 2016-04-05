@@ -211,7 +211,9 @@ def admins():
   for row in cursor:
     lowrd.append(list(row))
   data = {'topfc':topfc, 'topfd':topfd, 'toprd':toprd, 'lowrd':lowrd, 'id':user_id}
-  return render_template("drivers.html", data=data)
+  # debugging
+  print data
+  return render_template("admins.html", data=data)
 
 if __name__ == "__main__":
   import click
