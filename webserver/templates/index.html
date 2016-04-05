@@ -78,7 +78,7 @@
                 <ul class="nav navbar-nav">
                     <!-- Home -->
                     <li class="active">
-                        <a href="/" >
+                        <a href="/" onclick=redirect()>
                             Home
                         </a>
                     </li>
@@ -86,24 +86,16 @@
 
                     <!-- About us -->                        
                     <li class="active">
-                        <a href="/reservations?id=1" >
+                        <a href="/reservations" onclick=redirect() >
                             See Reservations
                         </a>
                     </li>
                     <!-- End About us -->
 
-                    <!-- fleet                       
-                    <li class="active">
-                        <a href="javascript:void(0);" class="dropdown-toggle" data-toggle="dropdown">
-                            Our Fleet
-                        </a>
-                    </li>
-                    <!-- End fleet -->
-
                     <!-- Pricing -->                        
                     <li class="active">
                         <!-- hardcoding driver id 2271 for testing -->
-                        <a href="/drivers?id=2271" >
+                        <a href="/drivers" onclick=redirect() >
                             Drivers
                         </a>
                     </li>
@@ -316,7 +308,10 @@
 <script type="text/javascript" src="/static/assets/js/plugins/parallax-slider.js"></script>
 <script type="text/javascript">
     jQuery(document).ready(function() {
-        jQuery('#myModal').modal('show');
+        var user = get_user();
+        if(user == null){
+            console.log('no user');
+        }
       	App.init();
         OwlCarousel.initOwlCarousel();        
         ParallaxSlider.initParallaxSlider();
@@ -324,6 +319,22 @@
     function get_rates(){
         var data = {{ data| tojson }};
         return data.rates;
+    }
+    function get_user(){
+        var data = {{ data| tojson }};
+        var user =  data.id;
+        return user;
+    }
+    function redirect(e){
+        e = e ||  window.event;
+        var element = e.target || e.srcElement;
+        var user = get_user();
+        var href = element.href;
+        if (user != null){
+            href = href + '?id='+get_user()
+        }
+        e.preventDefault();
+        window.location.href = href;
     }
 </script>
 <script>
