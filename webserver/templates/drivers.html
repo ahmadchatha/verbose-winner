@@ -392,10 +392,6 @@
         // OwlCarousel.initOwlCarousel();        
         // ParallaxSlider.initParallaxSlider();
     });
-    function get_reservations() {
-        var data = {{ data| tojson }};
-        return data.reservations;
-    }
     function get_user(){
         var data = {{ data| tojson }};
         var user =  data.id;
@@ -419,18 +415,24 @@
         url: '/get-current-reservations?id=' + get_user(),
         dataType: 'json',
         success: function(data) {
-            var reservations = get_reservations();
-            var results = "<ul>";
-            for(var i = 0; i < reservations.length; i++){
-                if (reservations[i][4] == "hourly") {
-                    results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone</b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+" <b>Type</b>: "+reservations[i][4]+" <b>Length</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+"</li>";
+            var reservations = data.reservations;
+            if (reservations != null)
+            {
+                var results = "<ul>";
+                for(var i = 0; i < reservations.length; i++){
+                    if (reservations[i][4] == "hourly") {
+                        results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone</b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+" <b>Type</b>: "+reservations[i][4]+" <b>Length</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+"</li>";
+                    }
+                    else {
+                        results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone</b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+" <b>Type</b>: "+reservations[i][4]+" <b>Distance</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+" <b>Trip ID</b>: "+reservations[i][9]+"</li>";
+                    }
                 }
-                else {
-                    results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone</b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+" <b>Type</b>: "+reservations[i][4]+" <b>Distance</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+" <b>Trip ID</b>: "+reservations[i][9]+"</li>";
-                }
+                results = results + "</ul>";
+                document.getElementById("resResults").innerHTML = results;
             }
-            results = results + "</ul>";
-            document.getElementById("resResults").innerHTML = results;
+            else {
+                document.getElementById("resResults").innerHTML = "You have no current reservations.";
+            }
         }.bind(this),
         error: function(xhr, status, err) {
             console.error(this.props.url, status, err.toString());
