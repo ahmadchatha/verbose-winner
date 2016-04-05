@@ -78,7 +78,7 @@
                 <ul class="nav navbar-nav">
                     <!-- Home -->
                     <li class="active">
-                        <a href="/" >
+                        <a href="/" onclick=redirect()>
                             Home
                         </a>
                     </li>
@@ -86,7 +86,7 @@
 
                     <!-- About us -->                        
                     <li class="active">
-                        <a href="/reservations?id=1" >
+                        <a href="/reservations" onclick=redirect() >
                             See Reservations
                         </a>
                     </li>
@@ -102,7 +102,7 @@
 
                     <!-- Pricing -->                        
                     <li class="active">
-                        <a href="/drivers?id=2271" >
+                        <a href="/drivers" onclick=redirect() >
                             Drivers
                         </a>
                     </li>
@@ -110,7 +110,7 @@
 
                     <!-- contact -->                        
                     <li class="active">
-                        <a href="/admins">
+                        <a href="/admins" onclick=redirect()>
                             Admins
                         </a>
                     </li>
@@ -172,6 +172,7 @@
                     <!-- Current Reservations pane -->
                     <div role="tabpanel" class="tab-pane active" id="current-reservations">
                         <button type="button" onClick=getCurrentReservations() class="btn-u btn-u-blue">Show Current Reservations</button>
+                        <div id="resResults"> </div>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="complete-trip">
                         <div class="form-group">
@@ -269,7 +270,6 @@
                         </div>                                
                         <button type="submit" class="btn-u btn-u-blue" onClick="set_source('DelVehicle')">Delete Vehicle</button>
                     </div>
-                    <div id="results"> </div>
                   </div>
                 </form>                                                   
             </div>
@@ -387,33 +387,55 @@
 <script type="text/javascript" src="/static/assets/js/plugins/parallax-slider.js"></script>
 <script type="text/javascript">
     jQuery(document).ready(function() {
-        jQuery('#myModal').modal('show');
+        // jQuery('#myModal').modal('show');
       	App.init();
-        OwlCarousel.initOwlCarousel();        
-        ParallaxSlider.initParallaxSlider();
+        // OwlCarousel.initOwlCarousel();        
+        // ParallaxSlider.initParallaxSlider();
     });
     function get_reservations() {
         var data = {{ data| tojson }};
         return data.reservations;
     }
-    function set_source(section) {
-        document.getElementById("sectionID").value = section;
+    function get_user(){
+        var data = {{ data| tojson }};
+        var user =  data.id;
+        return user;
+    }
+    function redirect(e){
+        e = e ||  window.event;
+        var element = e.target || e.srcElement;
+        var user = get_user();
+        var href = element.href;
+        if (user != null){
+            href = href + '?id='+get_user()
+        }
+        e.preventDefault();
+        window.location.href = href;
     }
 </script>
 <script type="text/javascript">
-    function getCurrentReservations(){
-        var reservations = get_reservations();
-        var results = "<ul>";
-        for(var i = 0; i < reservations.length; i++){
-            if (reservations[i][4] == "hourly") {
-                results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone</b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+" <b>Type</b>: "+reservations[i][4]+" <b>Length</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+"</li>";
+    function getCurrentReservations() {
+        $.ajax({
+        url: '/get-current-reservations?id=' + get_user(),
+        dataType: 'json',
+        success: function(data) {
+            var reservations = get_reservations();
+            var results = "<ul>";
+            for(var i = 0; i < reservations.length; i++){
+                if (reservations[i][4] == "hourly") {
+                    results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone</b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+" <b>Type</b>: "+reservations[i][4]+" <b>Length</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+"</li>";
+                }
+                else {
+                    results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone</b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+" <b>Type</b>: "+reservations[i][4]+" <b>Distance</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+" <b>Trip ID</b>: "+reservations[i][9]+"</li>";
+                }
             }
-            else {
-                results = results + "<li><b>Passenger</b>: "+reservations[i][0]+" <b>Phone</b>: "+reservations[i][1]+" <b>Pickup Time</b>: "+reservations[i][2]+" "+reservations[i][3]+" <b>Type</b>: "+reservations[i][4]+" <b>Distance</b>: "+reservations[i][5]+" hrs <b>Pick-Up</b>: "+reservations[i][6]+" <b>Drop-Off</b>: "+reservations[i][7]+" <b>Est. Amount</b>: $"+reservations[i][8]+" <b>Trip ID</b>: "+reservations[i][9]+"</li>";
-            }
-        }
-        results = results + "</ul>";
-        document.getElementById("results").innerHTML = results;
+            results = results + "</ul>";
+            document.getElementById("results").innerHTML = results;
+        }.bind(this),
+        error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+        }.bind(this)
+        });
     }
 </script>
 <!--[if lt IE 9]>
