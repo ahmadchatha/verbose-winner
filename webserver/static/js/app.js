@@ -10,7 +10,12 @@ var GoogleAPI = React.createClass({
   },
 
   componentWillMount: function() {
-    console.log('Helloworld');
+    var user_id = getURLParameter('id');
+    console.log(user_id);
+  },
+
+  function getURLParameter(name) {
+    return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
   },
 
   render: function() {
