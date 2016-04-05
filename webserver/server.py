@@ -186,9 +186,9 @@ def drivers():
 @app.route('/admins')
 def admins(): 
   user_id = request.args.get('id')
-  query1 = "SELECT P.uid, P.name, P.email, COUNT(P.uid), SUM(TR.amt_charged) FROM Passengers P, Trips T, Transactions TR WHERE" + \
+  query1 = "SELECT P.uid, P.name, P.email, COUNT(P.uid), SUM(TR.amt_charged) FROM Passengers P, Trips T, Transactions TR WHERE " + \
     "P.uid = T.passenger AND T.tid = TR.tid GROUP BY P.uid, P.name, P.email ORDER BY COUNT(P.uid) DESC LIMIT 5"
-  query2 = "SELECT D.uid, D.name, D.email, COUNT(D.uid), SUM(TR.amt_charged) FROM Drivers D, Trips T, Transactions TR WHERE" + \
+  query2 = "SELECT D.uid, D.name, D.email, COUNT(D.uid), SUM(TR.amt_charged) FROM Drivers D, Trips T, Transactions TR WHERE " + \
     "D.uid = T.driver AND T.tid = TR.tid GROUP BY D.uid, D.name, D.email ORDER BY COUNT(D.uid) DESC LIMIT 5"
   query3 = "SELECT D.uid, D.name, D.email, D.rating, SUM(TR.amt_charged) FROM Drivers D LEFT OUTER JOIN Trips T ON (D.uid = T.driver)" + \
     " LEFT OUTER JOIN Transactions TR ON (T.tid = TR.tid) GROUP BY D.uid, D.name, D.email, D.rating ORDER BY D.rating DESC LIMIT 5"
