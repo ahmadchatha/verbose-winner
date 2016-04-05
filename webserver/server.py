@@ -146,12 +146,15 @@ def drivers():
     if (paytype=='AMEX' or paytype=='VISA' or paytype=='MC'):
       # generating random number for auth_id, since we don't have an actual credit card processing system...
       auth = random.randint(1,2147483647)
-      stmt = "INSERT INTO Transactions (pay_type, auth_id, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, auth, amount, tid);
+      stmt = "INSERT INTO Transactions (pay_type, auth_id, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, auth, amount, tid)
     else:
-      stmt = "INSERT INTO Transactions (pay_type, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, amount, tid);
+      stmt = "INSERT INTO Transactions (pay_type, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, amount, tid)
     try: 
-      cursor = g.conn.execute(query)
+      cursor = g.conn.execute(stmt)
       data = {'error':0}
+      # if insert was successful, set corresponding trip status to completed
+      stmt2 = "UPDATE Trips SET status=\'completed\' WHERE tid={}".format(tid)
+      cursor = g.conn.execute(stmt2)
       return render_template("drivers_ct.html", data=data)
     except exc.SQLAlchemyError as e:
       data = {'error':1, 'message':str(e)}
@@ -161,7 +164,7 @@ def drivers():
     # for reference, column indices are: 0=name, 1=phone, 2=date, 3=time, 4=type, 5=distance, 6=pick_addr, 7=drop_add, 8=est_amount, 9=tid
     query = "SELECT P.name, P.phone, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
       "T.est_amount, T.tid FROM Trips T, Passengers P WHERE T.driver={} AND T.passenger = P.uid AND T.status!=\'completed\' ORDER BY T.date, T.time".format(user_id)
-    cursor = g.conn.execute(query.rstrip())
+    cursor = g.conn.execute(query)
     reservations = []
     for row in cursor: 
       reservations.append(list(row))
@@ -171,10 +174,31 @@ def drivers():
 @app.route('/admins')
 def admins(): 
   query1 = "SELECT P.uid, P.name, P.email, COUNT(P.uid), SUM(TR.amt_charged) FROM Passengers P, Trips T, Transactions TR WHERE" + \
-    "P.uid = T.passenger AND T.tid = TR.tid GROUP BY P.uid, P.name, P.email ORDER BY COUNT(P.uid) DESC LIMIT 5";
+    "P.uid = T.passenger AND T.tid = TR.tid GROUP BY P.uid, P.name, P.email ORDER BY COUNT(P.uid) DESC LIMIT 5"
   query2 = "SELECT D.uid, D.name, D.email, COUNT(D.uid), SUM(TR.amt_charged) FROM Drivers D, Trips T, Transactions TR WHERE" + \
-    "D.uid = T.driver AND T.tid = TR.tid GROUP BY D.uid, D.name, D.email ORDER BY COUNT(D.uid) DESC LIMIT 5";
-
+    "D.uid = T.driver AND T.tid = TR.tid GROUP BY D.uid, D.name, D.email ORDER BY COUNT(D.uid) DESC LIMIT 5"
+  query3 = "SELECT D.uid, D.name, D.email, D.rating, SUM(TR.amt_charged) FROM Drivers D LEFT OUTER JOIN Trips T ON (D.uid = T.driver)" + \
+    " LEFT OUTER JOIN Transactions TR ON (T.tid = TR.tid) GROUP BY D.uid, D.name, D.email, D.rating ORDER BY D.rating DESC LIMIT 5"
+  query4 = "SELECT D.uid, D.name, D.email, D.rating, SUM(TR.amt_charged) FROM Drivers D LEFT OUTER JOIN Trips T ON (D.uid = T.driver)" + \
+    " LEFT OUTER JOIN Transactions TR ON (T.tid = TR.tid) GROUP BY D.uid, D.name, D.email, D.rating ORDER BY D.rating ASC LIMIT 5"
+  cursor = g.conn.execute(query1)
+  topfc = []
+  for row in cursor:
+    topfc.append(list(row))
+  cursor = g.conn.execute(query2)
+  topfd = []
+  for row in cursor:
+    topfd.append(list(row))
+  cursor = g.conn.execute(query3)
+  toprd = []
+  for row in cursor:
+    toprd.append(list(row))
+  cursor = g.conn.execute(query4)
+  lowrd = []
+  for row in cursor:
+    lowrd.append(list(row))
+  data = {'topfc':topfc, 'topfd':topfd, 'toprd':toprd, 'lowrd':lowrd}
+  return render_template("drivers.html", data=data)
 
 if __name__ == "__main__":
   import click
