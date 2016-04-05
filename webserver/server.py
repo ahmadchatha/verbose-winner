@@ -96,6 +96,7 @@ def index():
 
   See its API: http://flask.pocoo.org/docs/0.10/api/#incoming-request-data
   """
+  user_id = request.args.get('id')
   script_dir = os.path.dirname(__file__) #<-- absolute dir the script is in
   rel_path = "queries/vehicle_class.sql"
   abs_file_path = os.path.join(script_dir, rel_path)
@@ -106,7 +107,7 @@ def index():
   rates = []
   for row in cursor:
     rates.append(list(row))
-  data = {'rates':rates}
+  data = {'rates':rates, 'id': user_id}
   return render_template("index.html", data=data)
 
 
