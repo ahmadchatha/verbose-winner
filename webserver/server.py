@@ -192,6 +192,31 @@ def save_address():
       return jsonify(data= data)
 
 
+@app.route('/create-trip')
+def craete_trip():
+  user = request.args.get('pid')
+  driver = request.args.get('did')
+  paddr = request.args.get('paddr')
+  daddr = request.args.get('daddr').strip()
+  dist = request.args.get('dist')
+  amt = request.args.get('amt')
+  date = request.args.get('date')
+  time = request.args.get('time')
+  ftype = request.args.get('type')
+  status = 'reserved'
+  query = "INSERT INTO Trips (date,time,distance,status,type,est_amount,pick_addr,drop_addr,driver,passenger)"
+  query = query+" VALUES (\'"+date+"\',\'"+ time +"\', "+ dist +", \'"+ status +"\', \'"+ ftype +"\', "+ amt
+  query = query+", \'"+ paddr +"\',\'"+ daddr +"\',"+ driver +","+ user +") RETURNING tid;"
+  try: 
+      cursor = g.conn.execute(query)
+      record = cursor.fetchone()
+      results = list(record)
+      data = {'error': 0, 'data': results}
+      return jsonify(data= data)
+  except exc.SQLAlchemyError as e:
+      data = {'error':1, 'message':str(e)}
+      return jsonify(data= data)
+
 
 #drivers page
 @app.route('/drivers')
