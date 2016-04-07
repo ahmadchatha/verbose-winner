@@ -134,7 +134,10 @@ def reservations():
 @app.route('/confirm-user')
 def confirm_user():
   user_id = request.args.get('id')
-  query = "SELECT U.uid FROM Passengers U WHERE U.uid={}".format(user_id)
+  # passengers only below:
+  # query = "SELECT U.uid FROM Passengers U WHERE U.uid={}".format(user_id)
+  # passengers and drivers below:
+  query = "SELECT Users.uid FROM (SELECT uid FROM Passengers UNION SELECT uid FROM Drivers) AS Users WHERE Users.uid={}".format(user_id);
   cursor = g.conn.execute(query)
   record = cursor.fetchone()
   if record != None:
