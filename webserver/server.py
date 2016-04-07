@@ -194,56 +194,55 @@ def save_address():
 
 
 #drivers page
-@app.route('/drivers') 
+@app.route('/drivers')
 def drivers():
   user_id = request.args.get('id')
   print user_id
-  #if sectionID hasn't been set, default is getting driver's current reservations
-  if 'sectionID' not in request.args:
-    # for reference, column indices are: 0=name, 1=phone, 2=date, 3=time, 4=type, 5=distance, 6=pick_addr, 7=drop_add, 8=est_amount, 9=tid
-    query = "SELECT P.name, P.phone, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
-      "T.est_amount, T.tid FROM Trips T, Passengers P WHERE T.driver={} AND T.passenger = P.uid AND T.status!=\'completed\' ORDER BY T.date, T.time".format(user_id)
-    cursor = g.conn.execute(query)
-    reservations = []
-    for row in cursor: 
-      reservations.append(list(row))
-    data = {'reservations':reservations}
-    return render_template("drivers.html", data=data)  
-  elif (request.args.get('sectionID') == 'CompTrip'): 
-    user_id = request.args.get('id')
-    print user_id
-    # get values from form
-    tid = request.args.get('comptid')
-    amount = request.args.get('tamtcharged')
-    paytype = request.args.get('tpaytype')
-    prating = request.args.get('tpassrating')
-    if (paytype=='AMEX' or paytype=='VISA' or paytype=='MC'):
-      # generating random number for auth_id, since we don't have an actual credit card processing system...
-      auth = random.randint(1,2147483647)
-      stmt = "INSERT INTO Transactions (pay_type, auth_id, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, auth, amount, tid)
-    else:
-      stmt = "INSERT INTO Transactions (pay_type, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, amount, tid)
-    try: 
-      cursor = g.conn.execute(stmt)
-      data = {'error':0}
-      # if insert was successful, set corresponding trip status to completed
-      stmt2 = "UPDATE Trips SET status=\'completed\' WHERE tid={}".format(tid)
-      cursor = g.conn.execute(stmt2)
-      return render_template("drivers_ct.html", data=data)
-    except exc.SQLAlchemyError as e:
-      data = {'error':1, 'message':str(e)}
-      return render_template("drivers_ct.html", data=data)
+  data = {'id':user_id}
+  return render_template("drivers.html", data=data)
+
+#get driver's current reservations
+@app.route('/get-current-reservatons') 
+def get_current_reservations():
+  user_id = request.args.get('id')
+  print user_id
+  # for reference, column indices are: 0=name, 1=phone, 2=date, 3=time, 4=type, 5=distance, 6=pick_addr, 7=drop_add, 8=est_amount, 9=tid
+  query = "SELECT P.name, P.phone, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
+    "T.est_amount, T.tid FROM Trips T, Passengers P WHERE T.driver={} AND T.passenger = P.uid AND T.status!=\'completed\' ORDER BY T.date, T.time".format(user_id)
+  cursor = g.conn.execute(query)
+  reservations = []
+  for row in cursor: 
+    reservations.append(list(row))
+  data = {'reservations':reservations, 'id':user_id}
+  return data  
+  
+# driver entering completed trip information
+@app.route('/complete-trip') 
+def complete_trip():
+  user_id = request.args.get('id')
+  print user_id
+  # get values from form
+  tid = request.args.get('comptid')
+  amount = request.args.get('tamtcharged')
+  paytype = request.args.get('tpaytype')
+  prating = request.args.get('tpassrating')
+  if (paytype=='AMEX' or paytype=='VISA' or paytype=='MC'):
+    # generating random number for auth_id, since we don't have an actual credit card processing system...
+    auth = random.randint(1,2147483647)
+    stmt = "INSERT INTO Transactions (pay_type, auth_id, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, auth, amount, tid)
   else:
-    # temporarily using get current reservations as default
-    # for reference, column indices are: 0=name, 1=phone, 2=date, 3=time, 4=type, 5=distance, 6=pick_addr, 7=drop_add, 8=est_amount, 9=tid
-    query = "SELECT P.name, P.phone, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
-      "T.est_amount, T.tid FROM Trips T, Passengers P WHERE T.driver={} AND T.passenger = P.uid AND T.status!=\'completed\' ORDER BY T.date, T.time".format(user_id)
-    cursor = g.conn.execute(query)
-    reservations = []
-    for row in cursor: 
-      reservations.append(list(row))
-    data = {'reservations':reservations}
-    return render_template("drivers.html", data=data)  
+    stmt = "INSERT INTO Transactions (pay_type, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, amount, tid)
+  try: 
+    cursor = g.conn.execute(stmt)
+    data = {'error':0, 'id':user_id}
+    # if insert was successful, set corresponding trip status to completed
+    stmt2 = "UPDATE Trips SET status=\'completed\' WHERE tid={}".format(tid)
+    cursor = g.conn.execute(stmt2)
+    return render_template("drivers_ct.html", data=data)
+  except exc.SQLAlchemyError as e:
+    message = "Error entering trip information, check form entries."
+    data = {'error':1, 'message':message, 'id':user_id}
+    return render_template("drivers_ct.html", data=data)
 
 @app.route('/admins')
 def admins(): 
