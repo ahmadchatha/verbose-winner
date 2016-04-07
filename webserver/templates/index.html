@@ -103,7 +103,7 @@
 
                     <!-- contact -->                        
                     <li class="active">
-                        <a href="/admins" onclick=redirect()>
+                        <a href="/admins">
                             Admins
                         </a>
                     </li>
@@ -441,7 +441,27 @@
         var driver_id = $("input[name='optionsRadios1']:checked").val();
         var amount = (fdistance*frate+parseFloat(5)).toFixed(2);
         var type = 'one-way';
-        console.log(driver_id, fdistance, amount, fdate,fftime, type, fpick, fdrop, get_user());
+        var uid = get_user();
+        console.log(driver_id, fdistance, amount, fdate,fftime, type, fpick, fdrop, uid);
+        var url = '/create-trip?pid='+uid+'&did='+driver_id+'&paddr='+fpick+'&daddr='+fdrop+'&dist='+fdistance+'&amt='+amount;
+        $.ajax({
+          url: url+'&date='+fdate+'&time='+fftime+'&type='+type,
+          dataType: 'json',
+          success: function(data) {
+            if(data.data.error == 0){
+                document.getElementById("results").innerHTML = "<h4>Reservation Completed.</h4>";
+            }
+            else{
+                document.getElementById("results").innerHTML = "<h4>Something went wrong while trying to create the reservation.</h4>";
+            }
+            document.getElementById("reserve").innerHTML = '';
+          }.bind(this),
+          error: function(xhr, status, err) {
+            document.getElementById("results").innerHTML = "<h4>Something went wrong. Please try again.</h4>";
+            document.getElementById("reserve").innerHTML = '';
+            console.error(this.props.url, status, err.toString());
+          }.bind(this)
+        });
       }
 
       function saveAddress(){
