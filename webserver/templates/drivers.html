@@ -164,6 +164,7 @@
                     <li class="active"><a href="#current-reservations" data-toggle="tab" aria-expanded="false">Current Reservations</a></li>
                     <li ><a href="#complete-trip" data-toggle="tab" aria-expanded="false">Enter Trip Info</a></li>
                     <li ><a href="#past-trips" data-toggle="tab" aria-expanded="false">Past Trips</a></li>
+                    <li ><a href="#show-vehicles" data-toggle="tab" aria-expanded="false">Show Vehicles</a></li>
                     <li ><a href="#add-vehicle" data-toggle="tab" aria-expanded="false">Add Vehicle</a></li>
                     <li ><a href="#delete-vehicle" data-toggle="tab" aria-expanded="false">Remove Vehicle</a></li>
                   </ul>
@@ -190,37 +191,43 @@
                               </div>
                         </div>
                         <div class="form-group">
-                              <label for="paymentType">Payment Type</label>
+                              <label for="paymentType">Payment Type (CASH, AMEX, VISA, MC)</label>
                               <div id="paymentType">
                                 <input id="tpaytype" class="form-control" placeholder="Enter Payment Type"
                                type="text" name="tpaytype"></input>
                               </div>
                         </div>
                         <div class="form-group">
-                              <label for="passengerRating">Passenger Rating</label>
+                              <label for="passengerRating">Passenger Rating (0-5)</label>
                               <div id="passengerRating">
                                 <input id="tpassrating" class="form-control" placeholder="Enter Passenger Rating"
                                type="text" name="tpassrating"></input>
                               </div>
                         </div>
-                        <button type="submit" class="btn-u btn-u-blue" onClick=set_source('CompTrip')>Submit Trip Data</button>
+                        <button type="button" onclick=completeTrip() class="btn-u btn-u-blue">Submit Trip Data</button>
+                        <div id="compResults"> </div>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="past-trips"> 
                         <div class="form-group">
-                              <label for="pastTimeFrom">From Date</label>
+                              <label for="pastTimeFrom">From Date (YYYY-MM-DD)</label>
                               <div id="pastTimeFrom">
-                                <input id="fromdate" class="form-control" placeholder="Enter From Date"
+                                <input id="fromdate" class="form-control" placeholder="Enter From Date or Leave Blank For All"
                                type="text" name="fromdate"></input>
                               </div>
                         </div>
                         <div class="form-group">
-                              <label for="pastTimeTo">To Date</label>
+                              <label for="pastTimeTo">To Date (YYYY-MM-DD)</label>
                               <div id="pastTimeTo">
-                                <input id="todate" class="form-control" placeholder="Enter To Date"
+                                <input id="todate" class="form-control" placeholder="Enter To Date or Leave Blank For All"
                                type="text" name="todate"></input>
                               </div>
                         </div>
-                        <button type="submit" class="btn-u btn-u-blue" onClick="set_source('PastTrips')">Submit Date Range</button>
+                        <button type="button" onclick=getPastTrips() class="btn-u btn-u-blue">Get Trips</button>
+                        <div id="pastTripResults"> </div>
+                    </div>
+                    <div role="tabpanel" class="tab-pane" id="show-vehicles">
+                        <button type="button" onClick=showVehicles() class="btn-u btn-u-blue">Show Your Vehicles</button>
+                        <div id="vehicleResults"> </div>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="add-vehicle">
                         <div class="form-group">
@@ -415,9 +422,6 @@
         url: '/get-current-reservations?id=' + get_user(),
         dataType: 'json',
         success: function(data) {
-            console.log('--data--')
-            console.log(data)
-            console.log('--data--')
             var reservations = data.data.reservations;
             if (reservations.length !== 0)
             {
@@ -435,6 +439,72 @@
             }
             else {
                 document.getElementById("resResults").innerHTML = "You have no current reservations.";
+            }
+        }.bind(this),
+        error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+        }.bind(this)
+        });
+    }
+
+    function completeTrip() {
+        var comp_tid = document.getElementById("comptid").value;
+        var comp_amt = document.getElementById("tamtcharged").value;
+        var comp_paytype = document.getElementById("tpaytype").value;
+        var comp_rating = document.getElementById("tpassrating").value;
+        $.ajax({
+        url: '/complete-trip?id='+get_user()+"&comptid="+comp_tid+"&tamtcharged="+comp_amt+"&tpaytype="+comp_paytype+"&tpassrating="+comp_rating,
+        dataType: 'json',
+        success: function(data) {
+            var error = data.data.error;
+            if (error === 0)
+            {
+                var result = "Trip information successfully entered.";
+                document.getElementById("compResults").innerHTML = result;
+            }
+            else {
+                message = data.data.message;
+                result = message;
+                document.getElementById("compResults").innerHTML = result;
+            }
+        }.bind(this),
+        error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+        }.bind(this)
+        });
+    }
+
+    function getPastTrips() {
+        var start = document.getElementById("pastTimeFrom").value;
+        var end = document.getElementById("pastTimeTo").value;
+        $.ajax({
+        url: '/get-past-trips?id='+get_user()+"&start="+start+"&end="+end,
+        dataType: 'json',
+        success: function(data) {
+            console.log('--data--')
+            console.log(data)
+            console.log('--data--')
+            var error = data.data.error;
+            var trips = data.data.trips;
+            if (error === 0 && trips.length !==0)
+            {
+                var results = "<ul>";
+                for(var i = 0; i < trips.length; i++){
+                    if (reservations[i][4] == "hourly") {
+                        results = results + "<li><b>Passenger</b>: "+trips[i][0]+" <b>Pickup Time</b>: "+trips[i][1]+" "+trips[i][2]+" <b>Est. Amount</b>: $"+trips[i][3]+" <b>Amt. Charged</b>: $"+trips[i][4]+" <b>Driver Rating</b>: "+trips[i][5]+" </b/>Passenger Rating</b>: "+trips[i][6]+" <b>tid</b>: "+trips[i][7]+"</li>";
+                    }
+                }
+                results = results + "</ul>";
+                document.getElementById("resResults").innerHTML = results;
+            }
+            else if (error === 0 && trips.length === 0)
+            {
+                document.getElementById("pastTripResults").innerHTML = "You have no past trips in the entered range.";
+            }
+            else {
+                message = data.data.message;
+                result = message;
+                document.getElementById("pastTripResults").innerHTML = result;
             }
         }.bind(this),
         error: function(xhr, status, err) {
