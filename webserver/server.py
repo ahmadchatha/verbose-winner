@@ -108,7 +108,18 @@ def index():
   rates = []
   for row in cursor:
     rates.append(list(row))
-  data = {'rates':rates, 'id': user_id}
+  if(user_id != None):
+    query = "SELECT * FROM Addresses A WHERE A.uid={}".format(user_id)
+    cursor = g.conn.execute(query)
+    address = []
+    address.append([0,'null','Select a saved address'])
+    for row in cursor:
+      addr = list(row)
+      final_addr = [addr[0],addr[1]+' '+addr[3]+' '+addr[4], addr[5]+ ' - '+addr[1]+' '+addr[3]+' '+addr[4]]
+      address.append(final_addr)
+    data = {'rates':rates, 'id': user_id, 'addresses': address}
+  else:
+    data = {'rates':rates, 'id': user_id}
   return render_template("index.html", data=data)
 
 
@@ -132,6 +143,19 @@ def confirm_user():
     results = []
   return jsonify(data= results)
 
+@app.route('/search-drivers')
+def search_drivers():
+  date = request.args.get('date')
+  time1 = request.args.get('time1')
+  time2 = request.args.get('time2')
+  vclass = request.args.get('class')
+  query = "SELECT D.uid, D.name,D.rating,V.make,V.model,V.capacity FROM drivers D, vehicles V WHERE D.uid=V.uid AND V.cname=\'"+ vclass+"\' AND D.uid NOT IN (SELECT T.driver FROM Trips T WHERE T.date=\'"+date+"\' AND T.time>=\'"+time1+"\' AND T.time<=\'"+time2+"\');"
+  cursor = g.conn.execute(query)
+  results = []
+  for row in cursor:
+    results.append(list(row))
+  return jsonify(data= results)
+
 
 @app.route('/create-user')
 def create_user():
@@ -139,6 +163,24 @@ def create_user():
   email = request.args.get('email')
   phone = request.args.get('phone')
   query = "INSERT INTO Passengers (name, email, phone) VALUES (\'"+ name +"\', \'"+ email +"\', \'"+ phone +"\') RETURNING uid;"
+  try: 
+      cursor = g.conn.execute(query)
+      record = cursor.fetchone()
+      results = list(record)
+      data = {'error': 0, 'data': results}
+      return jsonify(data= data)
+  except exc.SQLAlchemyError as e:
+      data = {'error':1, 'message':str(e)}
+      return jsonify(data= data)
+
+@app.route('/save-address')
+def save_address():
+  user = request.args.get('id')
+  label = request.args.get('label').strip()
+  addr = request.args.get('addr').strip()
+  city = request.args.get('city').strip()
+  state = request.args.get('state').strip()
+  query = "INSERT INTO Addresses (uid, street1, city, state, label) VALUES ("+user+", \'"+ addr +"\', \'"+ city +"\', \'"+ state +"\', \'"+ label +"\') RETURNING uid;"
   try: 
       cursor = g.conn.execute(query)
       record = cursor.fetchone()
