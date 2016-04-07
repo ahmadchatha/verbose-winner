@@ -19,7 +19,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/react.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/react/0.13.3/JSXTransformer.js"></script>
     <!-- GOOGLE API JS -->
-    <script type="text/jsx" src="/static/js/app.js"></script>
+    <script type="text/jsx" src="/static/js/reservations.js"></script>
 
     <!-- Web Fonts -->
     <link rel='stylesheet' type='text/css' href='//fonts.googleapis.com/css?family=Open+Sans:400,300,600&amp;subset=cyrillic,latin'>
@@ -77,7 +77,7 @@
             <div class="container">
                 <ul class="nav navbar-nav">
                     <!-- Home -->
-                    <li class="active">
+                    <li class="active" onclick=redirect()>
                         <a href="/">
                             Home
                         </a>
@@ -86,7 +86,7 @@
 
                     <!-- About us -->                        
                     <li class="active">
-                        <a href="/reservations">
+                        <a href="/reservations" onclick=redirect()>
                             See Reservations
                         </a>
                     </li>
@@ -94,7 +94,7 @@
 
                     <!-- Pricing -->                        
                     <li class="active">
-                        <a href="/drivers" >
+                        <a href="/drivers" onclick=redirect()>
                             Drivers
                         </a>
                     </li>
@@ -142,7 +142,7 @@
 
     <!--=== Content Part ===-->
     <div class="container content-sm">
-        <div id="googleapi"> </div>
+        <div id="reservations"> </div>
 
 
     	
@@ -191,6 +191,23 @@
         OwlCarousel.initOwlCarousel();        
         ParallaxSlider.initParallaxSlider();
     });
+    function get_user(){
+        var data = {{ data| tojson }};
+        console.log(data);
+        var user =  data.id;
+        return user;
+    }
+    function redirect(e){
+        e = e ||  window.event;
+        var element = e.target || e.srcElement;
+        var user = get_user();
+        var href = element.href;
+        if (user != null){
+            href = href + '?id='+get_user()
+        }
+        e.preventDefault();
+        window.location.href = href;
+    }
 </script>
 <!--[if lt IE 9]>
     <script src="/static/assets/plugins/respond.js"></script>

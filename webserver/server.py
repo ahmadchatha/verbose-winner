@@ -128,8 +128,8 @@ def index():
 @app.route('/reservations')
 def reservations():
   user_id = request.args.get('id')
-  print user_id
-  return render_template("reservations.html")
+  data = {'id':user_id}
+  return render_template("reservations.html", data=data)
 
 @app.route('/confirm-user')
 def confirm_user():
@@ -145,6 +145,30 @@ def confirm_user():
   else:
     results = []
   return jsonify(data= results)
+
+@app.route('/get-current')
+def pass_current_reservations():
+  user_id = request.args.get('id')
+  query = "SELECT to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
+    "T.est_amount, T.tid, D.name, D.phone FROM Trips T,Drivers D WHERE T.passenger={} AND T.driver=D.uid AND T.status!=\'reserved\' ORDER BY T.date, T.time".format(user_id)
+  cursor = g.conn.execute(query)
+  reservations = []
+  for row in cursor: 
+    reservations.append(list(row))
+  data = {'reservations':reservations, 'id':user_id}
+  return jsonify(data= data)  
+
+@app.route('/get-past')
+def pass_past_reservations():
+  user_id = request.args.get('id')
+  query = "SELECT to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
+    "T.est_amount, T.tid FROM Trips T WHERE T.passenger={} AND T.status!=\'completed\' ORDER BY T.date, T.time".format(user_id)
+  cursor = g.conn.execute(query)
+  reservations = []
+  for row in cursor: 
+    reservations.append(list(row))
+  data = {'reservations':reservations, 'id':user_id}
+  return jsonify(data= data)
 
 @app.route('/search-drivers')
 def search_drivers():
