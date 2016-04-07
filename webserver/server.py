@@ -20,6 +20,7 @@ from sqlalchemy import *
 from sqlalchemy.pool import NullPool
 from sqlalchemy import exc
 from flask import Flask, request, render_template, g, redirect, Response, jsonify
+from random import randint
 
 tmpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
 app = Flask(__name__, template_folder=tmpl_dir)
@@ -274,27 +275,68 @@ def complete_trip():
   user_id = request.args.get('id')
   print user_id
   # get values from form
-  tid = request.args.get('comptid')
-  amount = request.args.get('tamtcharged')
-  paytype = request.args.get('tpaytype')
-  prating = request.args.get('tpassrating')
+  tid = request.args.get('comptid').rstrip()
+  amount = request.args.get('tamtcharged').rstrip()
+  paytype = request.args.get('tpaytype').rstrip()
+  prating = request.args.get('tpassrating').rstrip()
+  # require paytype be CASH, AMEX, VISA, or MC
+  if (paytype.lower() not in ['cash', 'amex', 'visa', 'mc']):
+    message = "Invalid payment type; must be CASH, MC, VISA, or AMEX."
+    data = {'error':1, 'message':message, 'id':user_id}
+    return jsonify(data=data)
   if (paytype=='AMEX' or paytype=='VISA' or paytype=='MC'):
     # generating random number for auth_id, since we don't have an actual credit card processing system...
-    auth = random.randint(1,2147483647)
-    stmt = "INSERT INTO Transactions (pay_type, auth_id, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, auth, amount, tid)
+    auth = randint(1,2147483647)
+    stmt = "INSERT INTO Transactions (pay_type, auth_id, amt_charged, tid) VALUES (\'{}\', {}, {}, {})".format(paytype, auth, amount, tid)
   else:
-    stmt = "INSERT INTO Transactions (pay_type, amt_charged, tid) VALUES ({}, {}, {})".format(paytype, amount, tid)
+    stmt = "INSERT INTO Transactions (pay_type, amt_charged, tid) VALUES (\'{}\', {}, {})".format(paytype, amount, tid)
   try: 
     cursor = g.conn.execute(stmt)
     data = {'error':0, 'id':user_id}
     # if insert was successful, set corresponding trip status to completed
-    stmt2 = "UPDATE Trips SET status=\'completed\' WHERE tid={}".format(tid)
+    stmt2 = "UPDATE Trips SET (status, prating) = (\'completed\', {}) WHERE tid={}".format(prating, tid)
     cursor = g.conn.execute(stmt2)
-    return render_template("drivers_ct.html", data=data)
+    return jsonify(data=data)
   except exc.SQLAlchemyError as e:
+    print str(e)
     message = "Error entering trip information, check form entries."
     data = {'error':1, 'message':message, 'id':user_id}
-    return render_template("drivers_ct.html", data=data)
+    return jsonify(data=data)
+
+# driver getting completed trip info
+@app.route('/get-past-trips') 
+def complete_trip():
+  user_id = request.args.get('id')
+  print user_id
+  # get values from form
+  start = request.args.get('start').rstrip()
+  end = request.args.get('end').rstrip()
+  print start
+  print end
+  # treat empty entries as open interval
+  if (start == None and end == None):
+    query = "SELECT P.name, T.date, T.time, T.est_amount, TR.amt_charged, T.drating, T.prating, T.tid FROM " + \
+    "Trips T, Transactions TR, Passengers P WHERE T.status='completed' AND T.tid=TR.tid AND T.driver={} AND T.passenger = P.pid".format(user_id)
+  else if (start == None):
+    #
+  else if (end == None):
+    #
+  else:
+    #
+
+  try: 
+    cursor = g.conn.execute(query)
+    results = []
+    for row in cursor: 
+      results.append(list(row))
+    data = {'error':0, 'id':user_id, 'results':results}
+    # if insert was successful, set corresponding trip status to completed
+    return jsonify(data=data)
+  except exc.SQLAlchemyError as e:
+    print str(e)
+    message = "Error retrieving past trips, check date range formats."
+    data = {'error':1, 'message':message, 'id':user_id}
+    return jsonify(data=data)
 
 @app.route('/admins')
 def admins(): 
