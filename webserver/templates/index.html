@@ -160,15 +160,30 @@
                     <div role="tabpanel" class="tab-pane active" id="one-way">
                         <div class="form-group">
                               <label for="exampleInputEmail1">Pick-Up Location</label>
+                              <select class="form-control" id="select1">
+                                {% for n in data.addresses %}
+                                    <option value="{{n[1]}}">{{n[2]}}</option>
+                                {% endfor %}
+                              </select>
+                              <h5>OR</h5>
                               <div id="locationField">
                                 <input id="autocomplete" class="form-control" placeholder="Enter Address or Airport Code"
                                onFocus=geolocate() type="text"></input>
+                               <div id="saveAddress1">
+                               <span><a onClick=saveAddress()>Save this address</a></span>
+                               </div>
                               </div>
                           </div>
                           <div class="form-group">
                               <label for="exampleInputPassword1">Drop-Off Location</label>
+                              <select class="form-control" id="select2">
+                                {% for n in data.addresses %}
+                                    <option value="{{n[1]}}">{{n[2]}}</option>
+                                {% endfor %}
+                              </select>
+                              <h5>OR</h5>
                               <div id="locationField">
-                                <input id="autocomplete2" class="form-control" placeholder="Enter Address or Airport Code"
+                                <input id="autocomplete2" class="form-control" placeholder="Enter New Address or Airport"
                                onFocus=geolocate() type="text"></input>
                               </div>
                           </div>
@@ -178,7 +193,7 @@
                         <div class="form-group">
                               <label for="exampleInputEmail1">Pick-Up Location</label>
                               <div id="locationField">
-                                <input id="autocomplete" class="form-control" placeholder="Enter Address or Airport Code"
+                                <input id="autocomplete" class="form-control" placeholder="Enter New Address or Airport Code"
                                onFocus=geolocate() type="text"></input>
                               </div>
                         </div>
@@ -188,6 +203,7 @@
                                type="number"></input>
                         </div>
                         <button type="submit" class="btn-u btn-u-blue">Calculate Prices</button>
+                        <br>
                     </div>
                     <div id="results"> </div>
                   </div>
@@ -322,6 +338,7 @@
     }
     function get_user(){
         var data = {{ data| tojson }};
+        console.log(data);
         var user =  data.id;
         return user;
     }
@@ -344,7 +361,7 @@
       // This example requires the Places library. Include the libraries=places
       // parameter when you first load the API. For example:
       // <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&libraries=places">
-      var placeSearch, autocomplete, autocomplete2;
+      var placeSearch, autocomplete, autocomplete2, fdistance, frate, fclass, fdate, fftime, fpick, fdrop;
 
       function initAutocomplete() {
         // Create the autocomplete object, restricting the search to geographical
@@ -373,9 +390,97 @@
         var place = autocomplete2.getPlace();
       }
 
+      function ptreserve() {
+        var radioValue = $("input[name='optionsRadios']:checked").val();
+        fclass = radioValue;
+        var rates = get_rates();
+        for(var i=0; i< rates.length; i++){
+            if(rates[i][0] == radioValue){
+                frate = rates[i][2];
+            }
+        }
+
+        document.getElementById("reserve").innerHTML = '';
+        document.getElementById("results").innerHTML = "<form class=\"form-inline\"><div class=\"form-group\"><label>Date</label><input type=\"date\" class=\"form-control\" id=\"date\" placeholder=\"Enter Date mm/dd/yyyy\"><label>Time</label><input type=\"time\" class=\"form-control\" id=\"time\" placeholder=\"Enter Time hh:mm\"></div><button type=\"button\" onClick=searchDrivers() class=\"btn btn-default\">Find Drivers</button></form>";
+      }
+
+      function searchDrivers() {
+        var date = document.getElementById('date').value;
+        var time = document.getElementById('time').value;
+        var res = time.split(":");
+        if(parseInt(res[0])!=24){
+            var ftime = parseInt(res[0])+1 + ':'+ res[1]+':00';
+        }
+        else{
+            var ftime = '01:'+ res[1]+':00';
+        }
+        fdate = date;
+        fftime = time+ ':00';
+        console.log(date,time, fdistance, fclass, ftime);
+        $.ajax({
+          url: '/search-drivers?date=' + date + '&time1='+ time+ ':00&class=' + fclass + '&time2='+ftime,
+          dataType: 'json',
+          success: function(data) {
+            console.log(data)
+            var drivers = data.data;
+            var results = "";
+            for(var i = 0; i < drivers.length; i++){
+                results = results+ "<div class=\"radio\" id=\"drivers_res\"><label><input type=\"radio\" name=\"optionsRadios1\" id="+drivers[i][0]+" value="+drivers[i][0]+" checked><h4><b> Driver:</b> "+drivers[i][1] + " <b> Rating:</b> "+drivers[i][2]+" <b> Vehicle:</b> "+drivers[i][3]+ " "+ drivers[i][4]+ "<b> Capacity:</b> "+ drivers[i][5]+ "</h4></label></div>";
+            }
+            document.getElementById("results").innerHTML = results;
+            var reserve = "<button type=\"button\" onclick=reserve()>Reserve</button>";
+            document.getElementById("reserve").innerHTML = reserve;
+          }.bind(this),
+          error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+          }.bind(this)
+        });
+      }
+
+      function reserve(){
+        var driver_id = $("input[name='optionsRadios1']:checked").val();
+        var amount = (fdistance*frate+parseFloat(5)).toFixed(2);
+        var type = 'one-way';
+        console.log(driver_id, fdistance, amount, fdate,fftime, type, fpick, fdrop, get_user());
+      }
+
+      function saveAddress(){
+        document.getElementById("saveAddress1").innerHTML = "<form class=\"form-inline\"><div class=\"form-group\"><label>Label</label><input type=\"text\" class=\"form-control\" id=\"label1\" placeholder=\"Label the address\"></div><button type=\"button\" onClick=saveAddress1() class=\"btn btn-default\">Save</button></form>";
+      }
+      function saveAddress1() {
+        var address = document.getElementById('autocomplete').value;
+        var res = address.split(",");
+        var label = document.getElementById('label1').value;
+        var userid = get_user();
+        $.ajax({
+          url: '/save-address?id=' + userid + '&label='+ label + '&addr=' + res[0] + '&city='+res[1]+'&state='+res[2],
+          dataType: 'json',
+          success: function(data) {
+            if(data.data.error == 0){
+                document.getElementById("saveAddress1").innerHTML = "<h4>Saved</h4>";
+            }
+            else{
+                document.getElementById("saveAddress1").innerHTML = "<h4>Something went wrong.</h4>";
+            }
+          }.bind(this),
+          error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+            document.getElementById(saveAddress1).innerHTML = "<h4>There was a problem saving the address.</h4>";
+          }.bind(this)
+        });
+      }
+
       function calculateOneWay(){
         var input = document.getElementById('autocomplete').value;
         var input2 = document.getElementById('autocomplete2').value;
+        if(input == '' && input2 == ''){
+            var e = document.getElementById("select1");
+            input = e.options[e.selectedIndex].value;
+            var e2 = document.getElementById("select2");
+            input2 = e2.options[e2.selectedIndex].value;
+        }
+        fpick = input;
+        fdrop = input2;
         var url = 'https://maps.googleapis.com/maps/api/distancematrix/json?units=imperial&';
         var params = 'origins='+input + '&destinations='+input2 + '&key=AIzaSyDHOqzhoqG4uUPgI62szNJ9S2PslgVC2DM';
         var distanceMatrix  = new google.maps.DistanceMatrixService();
@@ -388,15 +493,16 @@
                 var rates = get_rates();
                 var distance = (response.rows[0].elements[0].distance.text);
                 var value = parseFloat(distance.replace(" mi", ""));
+                fdistance = value;
                 var f_value = (value*3.0).toFixed(2);
                 var t_value = (value*3.0+parseFloat(5)).toFixed(2);
                 console.log(value);
                 var results = "";
                 for(var i = 0; i < rates.length; i++){
-                    results = results+ "<div class=\"radio\"><label><input type=\"radio\" name=\"optionsRadios\" id="+rates[i][0]+" value="+rates[i][0]+" checked><h4><b>Vehicle Class:</b> "+rates[i][0]+" <b> Distance:</b> "+value + " miles  <b> Base Fare:</b> $5 <b>Total Fare:</b> 5 + "+value+ '* '+ rates[i][2] + " = $" + (value*rates[i][2]+parseFloat(5)).toFixed(2) + "</h4></label></div>";
+                    results = results+ "<div class=\"radio\" id=\"rates_res\"><label><input type=\"radio\" name=\"optionsRadios\" id="+rates[i][0]+" value="+rates[i][0]+" checked><h4><b>Vehicle Class:</b> "+rates[i][0]+" <b> Distance:</b> "+value + " miles  <b> Base Fare:</b> $5 <b>Total Fare:</b> 5 + "+value+ '* '+ rates[i][2] + " = $" + (value*rates[i][2]+parseFloat(5)).toFixed(2) + "</h4></label></div>";
                 }
                 document.getElementById("results").innerHTML = results;
-                var reserve = "<button type=\"button\">Proceed to Reservation</button>";
+                var reserve = "<button type=\"button\" onclick=ptreserve()>Proceed to Reservation</button>";
                 document.getElementById("reserve").innerHTML = reserve;
             }
         })
