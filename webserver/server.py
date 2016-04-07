@@ -160,7 +160,7 @@ def drivers():
   return render_template("drivers.html", data=data)
 
 #get driver's current reservations
-@app.route('/get-current-reservatons') 
+@app.route('/get-current-reservations') 
 def get_current_reservations():
   user_id = request.args.get('id')
   print user_id
@@ -172,7 +172,7 @@ def get_current_reservations():
   for row in cursor: 
     reservations.append(list(row))
   data = {'reservations':reservations, 'id':user_id}
-  return data  
+  return jsonify(data= data)  
   
 # driver entering completed trip information
 @app.route('/complete-trip') 
