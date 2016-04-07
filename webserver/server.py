@@ -134,7 +134,10 @@ def reservations():
 @app.route('/confirm-user')
 def confirm_user():
   user_id = request.args.get('id')
-  query = "SELECT U.uid FROM Passengers U WHERE U.uid={}".format(user_id)
+  # passengers only below:
+  # query = "SELECT U.uid FROM Passengers U WHERE U.uid={}".format(user_id)
+  # passengers and drivers below:
+  query = "SELECT Users.uid FROM (SELECT uid FROM Passengers UNION SELECT uid FROM Drivers) AS Users WHERE Users.uid={}".format(user_id)
   cursor = g.conn.execute(query)
   record = cursor.fetchone()
   if record != None:
@@ -227,7 +230,7 @@ def drivers():
   return render_template("drivers.html", data=data)
 
 #get driver's current reservations
-@app.route('/get-current-reservatons') 
+@app.route('/get-current-reservations') 
 def get_current_reservations():
   user_id = request.args.get('id')
   print user_id
@@ -239,7 +242,7 @@ def get_current_reservations():
   for row in cursor: 
     reservations.append(list(row))
   data = {'reservations':reservations, 'id':user_id}
-  return data  
+  return jsonify(data= data)  
   
 # driver entering completed trip information
 @app.route('/complete-trip') 
@@ -256,7 +259,7 @@ def complete_trip():
     auth = random.randint(1,2147483647)
     stmt = "INSERT INTO Transactions (pay_type, auth_id, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, auth, amount, tid)
   else:
-    stmt = "INSERT INTO Transactions (pay_type, amt_charged, tid) VALUES ({}, {}, {}, {})".format(paytype, amount, tid)
+    stmt = "INSERT INTO Transactions (pay_type, amt_charged, tid) VALUES ({}, {}, {})".format(paytype, amount, tid)
   try: 
     cursor = g.conn.execute(stmt)
     data = {'error':0, 'id':user_id}
