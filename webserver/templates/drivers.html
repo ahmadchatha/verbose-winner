@@ -231,7 +231,7 @@
                     </div>
                     <div role="tabpanel" class="tab-pane" id="add-vehicle">
                         <div class="form-group">
-                              <label for="plate">Plate Number</label>
+                              <label for="plate">License Plate</label>
                               <div id="plate">
                                 <input id="platenum" class="form-control" placeholder="Enter Plate Number"
                                type="text" name="platenum"></input>
@@ -259,23 +259,25 @@
                               </div>
                         </div>
                         <div class="form-group">
-                              <label for="class">Class</label>
+                              <label for="class">Class (econ, lux, suplux, or suv)</label>
                               <div id="class">
                                 <input id="vclass" class="form-control" placeholder="Enter Vehicle Class"
                                type="text" name="vclass"></input>
                               </div>
                         </div>
-                        <button type="submit" class="btn-u btn-u-blue" onClick="set_source('AddVehicle')">Add Vehicle</button>
+                        <button type="button" onclick=addVehicle() class="btn-u btn-u-blue">Add Vehicle</button>
+                        <div id="addVehicleResult"> </div>
                     </div>
                     <div role="tabpanel" class="tab-pane" id="delete-vehicle">
                         <div class="form-group">
-                              <label for="deletePlate">Plate Number</label>
+                              <label for="deletePlate">License Plate</label>
                               <div id="deletePlate">
-                                <input id="rmplate" class="form-control" placeholder="Enter Vehicle Class"
+                                <input id="rmplate" class="form-control" placeholder="Enter Plate Number"
                                type="text" name="rmplate"></input>
                               </div>
                         </div>                                
-                        <button type="submit" class="btn-u btn-u-blue" onClick="set_source('DelVehicle')">Delete Vehicle</button>
+                        <button type="button" onclick=deleteVehicle() class="btn-u btn-u-blue">Delete Vehicle</button>
+                        <div id="deleteVehicleResult"> </div>
                     </div>
                   </div>
                 </form>                                                   
@@ -463,8 +465,7 @@
                 document.getElementById("compResults").innerHTML = result;
             }
             else {
-                message = data.data.message;
-                result = message;
+                result = data.data.message;
                 document.getElementById("compResults").innerHTML = result;
             }
         }.bind(this),
@@ -475,36 +476,105 @@
     }
 
     function getPastTrips() {
-        var start = document.getElementById("pastTimeFrom").value;
-        var end = document.getElementById("pastTimeTo").value;
+        var start = document.getElementById("fromdate").value;
+        var end = document.getElementById("todate").value;
         $.ajax({
         url: '/get-past-trips?id='+get_user()+"&start="+start+"&end="+end,
         dataType: 'json',
         success: function(data) {
-            console.log('--data--')
-            console.log(data)
-            console.log('--data--')
             var error = data.data.error;
             var trips = data.data.trips;
             if (error === 0 && trips.length !==0)
             {
                 var results = "<ul>";
-                for(var i = 0; i < trips.length; i++){
-                    if (reservations[i][4] == "hourly") {
-                        results = results + "<li><b>Passenger</b>: "+trips[i][0]+" <b>Pickup Time</b>: "+trips[i][1]+" "+trips[i][2]+" <b>Est. Amount</b>: $"+trips[i][3]+" <b>Amt. Charged</b>: $"+trips[i][4]+" <b>Driver Rating</b>: "+trips[i][5]+" </b/>Passenger Rating</b>: "+trips[i][6]+" <b>tid</b>: "+trips[i][7]+"</li>";
-                    }
+                for(var i = 0; i < trips.length; i++) {
+                    results = results + "<li><b>Passenger</b>: "+trips[i][0]+" <b>Pickup Time</b>: "+trips[i][1]+" "+trips[i][2]+" <b>Est. Amount</b>: $"+trips[i][3]+" <b>Amt. Charged</b>: $"+trips[i][4]+" <b>Driver Rating</b>: "+trips[i][5]+" <b>Passenger Rating</b>: "+trips[i][6]+" <b>tid</b>: "+trips[i][7]+"</li>";
                 }
                 results = results + "</ul>";
-                document.getElementById("resResults").innerHTML = results;
+                document.getElementById("pastTripResults").innerHTML = results;
             }
             else if (error === 0 && trips.length === 0)
             {
                 document.getElementById("pastTripResults").innerHTML = "You have no past trips in the entered range.";
             }
             else {
-                message = data.data.message;
-                result = message;
+                result = data.data.message;
                 document.getElementById("pastTripResults").innerHTML = result;
+            }
+        }.bind(this),
+        error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+        }.bind(this)
+        });
+    }
+
+    function showVehicles() {
+        $.ajax({
+        url: '/show-vehicles?id=' + get_user(),
+        dataType: 'json',
+        success: function(data) {
+            var vehicles = data.data.vehicles;
+            if (vehicles.length !== 0)
+            {
+                var results = "<ul>";
+                for(var i = 0; i < vehicles.length; i++){
+                    results = results + "<li><b>License Plate</b>: "+vehicles[i][0]+" <b>Make</b>: "+vehicles[i][1]+" <b>Model</b>: "+vehicles[i][2]+" <b>Capacity</b>: "+vehicles[i][3]+" <b>Class</b>: "+vehicles[i][4]+"</li>";
+                }
+                results = results + "</ul>";
+                document.getElementById("vehicleResults").innerHTML = results;
+            }
+            else {
+                document.getElementById("vehicleResults").innerHTML = "You have no vehicles on file.";
+            }
+        }.bind(this),
+        error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+        }.bind(this)
+        });
+    }
+
+    function addVehicle() {
+        var vplate = document.getElementById("platenum").value;
+        var vmake = document.getElementById("vmake").value;
+        var vmodel = document.getElementById("vmodel").value;
+        var vcapacity = document.getElementById("vcapacity").value;
+        var vclass = document.getElementById("vclass").value;
+        $.ajax({
+        url: '/add-vehicle?id='+get_user()+"&vplate="+vplate+"&vmake="+vmake+"&vmodel="+vmodel+"&vcapacity="+vcapacity+"&vclass="+vclass,
+        dataType: 'json',
+        success: function(data) {
+            var error = data.data.error;
+            if (error === 0)
+            {
+                var result = "Vehicle successfully added.";
+                document.getElementById("addVehicleResult").innerHTML = result;
+            }
+            else {
+                result = data.data.message;
+                document.getElementById("addVehicleResult").innerHTML = result;
+            }
+        }.bind(this),
+        error: function(xhr, status, err) {
+            console.error(this.props.url, status, err.toString());
+        }.bind(this)
+        });
+    }
+
+    function deleteVehicle() {
+        var vplate = document.getElementById("rmplate").value;
+        $.ajax({
+        url: '/delete-vehicle?id='+get_user()+"&vplate="+vplate,
+        dataType: 'json',
+        success: function(data) {
+            var error = data.data.error;
+            if (error === 0)
+            {
+                var result = "Vehicle successfully deleted.";
+                document.getElementById("deleteVehicleResult").innerHTML = result;
+            }
+            else {
+                result = data.data.message;
+                document.getElementById("deleteVehicleResult").innerHTML = result;
             }
         }.bind(this),
         error: function(xhr, status, err) {

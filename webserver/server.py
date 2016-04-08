@@ -250,7 +250,6 @@ def craete_trip():
 @app.route('/drivers')
 def drivers():
   user_id = request.args.get('id')
-  print user_id
   data = {'id':user_id}
   return render_template("drivers.html", data=data)
 
@@ -258,7 +257,6 @@ def drivers():
 @app.route('/get-current-reservations') 
 def get_current_reservations():
   user_id = request.args.get('id')
-  print user_id
   # for reference, column indices are: 0=name, 1=phone, 2=date, 3=time, 4=type, 5=distance, 6=pick_addr, 7=drop_add, 8=est_amount, 9=tid
   query = "SELECT P.name, P.phone, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
     "T.est_amount, T.tid FROM Trips T, Passengers P WHERE T.driver={} AND T.passenger = P.uid AND T.status!=\'completed\' ORDER BY T.date, T.time".format(user_id)
@@ -273,7 +271,6 @@ def get_current_reservations():
 @app.route('/complete-trip') 
 def complete_trip():
   user_id = request.args.get('id')
-  print user_id
   # get values from form
   tid = request.args.get('comptid').rstrip()
   amount = request.args.get('tamtcharged').rstrip()
@@ -305,31 +302,33 @@ def complete_trip():
 
 # driver getting completed trip info
 @app.route('/get-past-trips') 
-def complete_trip():
+def get_past_trips():
   user_id = request.args.get('id')
-  print user_id
   # get values from form
   start = request.args.get('start').rstrip()
   end = request.args.get('end').rstrip()
-  print start
-  print end
   # treat empty entries as open interval
-  if (start == None and end == None):
-    query = "SELECT P.name, T.date, T.time, T.est_amount, TR.amt_charged, T.drating, T.prating, T.tid FROM " + \
-    "Trips T, Transactions TR, Passengers P WHERE T.status='completed' AND T.tid=TR.tid AND T.driver={} AND T.passenger = P.pid".format(user_id)
-  else if (start == None):
-    #
-  else if (end == None):
-    #
+  if (start == '' and end == ''):
+    query = "SELECT P.name, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.est_amount, TR.amt_charged, T.drating, T.prating, T.tid FROM " + \
+      "Trips T, Transactions TR, Passengers P WHERE T.status='completed' AND T.tid=TR.tid AND T.driver={} AND T.passenger=P.uid".format(user_id)
+  elif (start == ''):
+    query = "SELECT P.name, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.est_amount, TR.amt_charged, T.drating, T.prating, T.tid FROM " + \
+      "Trips T, Transactions TR, Passengers P WHERE T.status='completed' AND t.tid=TR.tid AND T.passenger=P.uid AND " + \
+      "T.driver={} AND T.date <= \'{}\'".format(user_id, end)
+  elif (end == ''):
+    query = "SELECT P.name, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.est_amount, TR.amt_charged, T.drating, T.prating, T.tid FROM " + \
+      "Trips T, Transactions TR, Passengers P WHERE T.status='completed' AND t.tid=TR.tid AND T.passenger=P.uid AND " + \
+      "T.driver={} AND T.date >= \'{}\'".format(user_id, start)
   else:
-    #
-
+    query = "SELECT P.name, to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.est_amount, TR.amt_charged, T.drating, T.prating, T.tid FROM " + \
+      "Trips T, Transactions TR, Passengers P WHERE T.status='completed' AND t.tid=TR.tid AND T.passenger=P.uid AND " + \
+      "T.driver={} AND T.date >= \'{}\' AND T.date <= \'{}\'".format(user_id, start, end)
   try: 
     cursor = g.conn.execute(query)
-    results = []
+    trips = []
     for row in cursor: 
-      results.append(list(row))
-    data = {'error':0, 'id':user_id, 'results':results}
+      trips.append(list(row))
+    data = {'error':0, 'id':user_id, 'trips':trips}
     # if insert was successful, set corresponding trip status to completed
     return jsonify(data=data)
   except exc.SQLAlchemyError as e:
@@ -338,6 +337,78 @@ def complete_trip():
     data = {'error':1, 'message':message, 'id':user_id}
     return jsonify(data=data)
 
+# show driver's vehicles
+@app.route('/show-vehicles')
+def show_vehicles():
+  user_id = request.args.get('id')
+  # retrieve driver's vehicles
+  query = "SELECT V.plate_no, V.make, V.model, V.capacity, V.cname FROM Vehicles V WHERE V.uid={}".format(user_id)
+  cursor = g.conn.execute(query)
+  vehicles = []
+  for row in cursor:
+    vehicles.append(list(row))
+  data = {'id':user_id, 'vehicles':vehicles}
+  return jsonify(data=data)
+
+# add a vehicle
+@app.route('/add-vehicle')
+def add_vehicle():
+  user_id = request.args.get('id')
+  # get values from form
+  vplate = request.args.get('vplate').rstrip()
+  vmake = request.args.get('vmake').rstrip()
+  vmodel = request.args.get('vmodel').rstrip()
+  vcapacity = request.args.get('vcapacity').rstrip()
+  vclass = request.args.get('vclass').rstrip().lower()
+  # require vclass be suplux, econ, lux, or suv
+  if (vclass not in ['suplux', 'econ', 'lux', 'suv']):
+    message = "Invalid vehicle class; must be econ, lux, suplux, or suv."
+    data = {'error':1, 'message':message, 'id':user_id}
+    return jsonify(data=data)
+  else:
+    stmt = "INSERT INTO Vehicles (plate_no, make, model, capacity, cname, uid) " + \
+      "VALUES (\'{}\', \'{}\', \'{}\', {}, \'{}\', {})".format(vplate, vmake, vmodel, vcapacity, vclass, user_id)
+  try: 
+    cursor = g.conn.execute(stmt)
+    data = {'error':0, 'id':user_id}
+    return jsonify(data=data)
+  except exc.SQLAlchemyError as e:
+    print str(e)
+    message = "Error entering vehicle, check form entries.  Note that drivers cannot share cars per company policy."
+    data = {'error':1, 'message':message, 'id':user_id}
+    return jsonify(data=data)
+
+# delete a vehicle
+@app.route('/delete-vehicle')
+def delete_vehicle():
+  user_id = request.args.get('id')
+  # get plate from form
+  vplate = request.args.get('vplate').rstrip()
+  # check whether car exists and belongs to user
+  stmt = "SELECT uid FROM Vehicles V WHERE V.plate_no=\'{}\'".format(vplate)
+  try: 
+    cursor=g.conn.execute(stmt)
+    record = cursor.fetchone()
+    if (record == None):
+      message = "Error: no vehicle matches entered license plate."
+      data = {'error':1, 'message':message, 'id':user_id}
+      return jsonify(data=data)
+    elif (str(record[0]) != str(user_id)):
+      message = "Error: you can't delete a vehicle that doesn't belong to you!"
+      data = {'error':1, 'message':message, 'id':user_id}
+      return jsonify(data=data)
+    else: 
+      stmt = "DELETE FROM Vehicles V WHERE V.plate_no=\'{}\'".format(vplate)
+      cursor = g.conn.execute(stmt)
+      data = {'error':0, 'id':user_id}
+      return jsonify(data=data)
+  except exc.SQLAlchemyError as e:
+    print str(e)
+    message = "Error deleting vehicle, check form entry."
+    data = {'error':1, 'message':message, 'id':user_id}
+    return jsonify(data=data)
+
+# show most frequent driver/passenger info and top/bottom rated driver info 
 @app.route('/admins')
 def admins(): 
   user_id = request.args.get('id')
@@ -345,10 +416,10 @@ def admins():
     "P.uid = T.passenger AND T.tid = TR.tid GROUP BY P.uid, P.name, P.email ORDER BY COUNT(P.uid) DESC LIMIT 5"
   query2 = "SELECT D.uid, D.name, D.email, COUNT(D.uid), SUM(TR.amt_charged) FROM Drivers D, Trips T, Transactions TR WHERE " + \
     "D.uid = T.driver AND T.tid = TR.tid GROUP BY D.uid, D.name, D.email ORDER BY COUNT(D.uid) DESC LIMIT 5"
-  query3 = "SELECT D.uid, D.name, D.email, D.rating, SUM(TR.amt_charged) FROM Drivers D LEFT OUTER JOIN Trips T ON (D.uid = T.driver)" + \
-    " LEFT OUTER JOIN Transactions TR ON (T.tid = TR.tid) GROUP BY D.uid, D.name, D.email, D.rating ORDER BY D.rating DESC LIMIT 5"
-  query4 = "SELECT D.uid, D.name, D.email, D.rating, SUM(TR.amt_charged) FROM Drivers D LEFT OUTER JOIN Trips T ON (D.uid = T.driver)" + \
-    " LEFT OUTER JOIN Transactions TR ON (T.tid = TR.tid) GROUP BY D.uid, D.name, D.email, D.rating ORDER BY D.rating ASC LIMIT 5"
+  query3 = "SELECT D.uid, D.name, D.email, D.rating, SUM(TR.amt_charged) FROM Drivers D, Trips T, Transactions TR WHERE " + \
+    "D.uid = T.driver AND T.tid = TR.tid GROUP BY D.uid, D.name, D.email, D.rating ORDER BY D.rating DESC LIMIT 5"
+  query4 = "SELECT D.uid, D.name, D.email, D.rating, SUM(TR.amt_charged) FROM Drivers D, Trips T, Transactions TR WHERE " + \
+    "D.uid = T.driver AND T.tid = TR.tid GROUP BY D.uid, D.name, D.email, D.rating ORDER BY D.rating ASC LIMIT 5"
   cursor = g.conn.execute(query1)
   topfc = []
   for row in cursor:
