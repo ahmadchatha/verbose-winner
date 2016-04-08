@@ -151,7 +151,7 @@ def confirm_user():
 def pass_current_reservations():
   user_id = request.args.get('id')
   query = "SELECT to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
-    "T.est_amount, T.tid, D.name, D.phone FROM Trips T,Drivers D WHERE T.passenger={} AND T.driver=D.uid AND T.status!=\'reserved\' ORDER BY T.date, T.time".format(user_id)
+    "T.est_amount, T.tid, D.name, D.phone FROM Trips T,Drivers D WHERE T.passenger={} AND T.driver=D.uid AND T.status=\'reserved\' ORDER BY T.date, T.time".format(user_id)
   cursor = g.conn.execute(query)
   reservations = []
   for row in cursor: 
@@ -163,7 +163,7 @@ def pass_current_reservations():
 def pass_past_reservations():
   user_id = request.args.get('id')
   query = "SELECT to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
-    "T.est_amount, T.tid FROM Trips T WHERE T.passenger={} AND T.status!=\'completed\' ORDER BY T.date, T.time".format(user_id)
+    "T.est_amount, T.tid FROM Trips T WHERE T.passenger={} AND T.status=\'completed\' ORDER BY T.date, T.time".format(user_id)
   cursor = g.conn.execute(query)
   reservations = []
   for row in cursor: 
