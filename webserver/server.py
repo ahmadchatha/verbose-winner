@@ -437,8 +437,6 @@ def admins():
   for row in cursor:
     lowrd.append(list(row))
   data = {'topfc':topfc, 'topfd':topfd, 'toprd':toprd, 'lowrd':lowrd, 'id':user_id}
-  # debugging
-  print data
   return render_template("admins.html", data=data)
 
 if __name__ == "__main__":
