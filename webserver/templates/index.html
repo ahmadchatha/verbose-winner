@@ -418,6 +418,12 @@
       function searchDrivers() {
         var date = document.getElementById('date').value;
         var time = document.getElementById('time').value;
+        if(Date.parse(new Date()) > Date.parse(date + ' '+ time)){
+            console.log('NO');
+            document.getElementById("reserve").innerHTML = '<h5>You can only reserve in advance.</h5>';
+            document.getElementById("results").innerHTML = "<form class=\"form-inline\"><div class=\"form-group\"><label>Date</label><input type=\"date\" class=\"form-control\" id=\"date\" placeholder=\"Enter Date mm/dd/yyyy\"><label>Time</label><input type=\"time\" class=\"form-control\" id=\"time\" placeholder=\"Enter Start Time hh:mm\"></div><button type=\"button\" onClick=searchDrivers() class=\"btn btn-default\">Find Drivers</button></form>";
+            return;
+        }
         var res = time.split(":");
         if(parseInt(res[0])!=24){
             var ftime = parseInt(res[0])+1 + ':'+ res[1]+':00';
