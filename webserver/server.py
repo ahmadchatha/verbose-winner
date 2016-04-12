@@ -163,7 +163,7 @@ def pass_current_reservations():
 def pass_past_reservations():
   user_id = request.args.get('id')
   query = "SELECT to_char(T.date, \'YYYY-MM-DD\') AS date, to_char(T.time, \'HH:MI:SS\') AS time, T.type, T.distance, T.pick_addr, T.drop_addr, " + \
-    "T.est_amount, T.tid FROM Trips T WHERE T.passenger={} AND T.status=\'completed\' ORDER BY T.date, T.time".format(user_id)
+    "T.est_amount, T.tid, T.drating FROM Trips T WHERE T.passenger={} AND T.status=\'completed\' ORDER BY T.date, T.time".format(user_id)
   cursor = g.conn.execute(query)
   reservations = []
   for row in cursor: 
@@ -196,6 +196,20 @@ def create_user():
       record = cursor.fetchone()
       results = list(record)
       data = {'error': 0, 'data': results}
+      return jsonify(data= data)
+  except exc.SQLAlchemyError as e:
+      data = {'error':1, 'message':str(e)}
+      return jsonify(data= data)
+
+@app.route('/assign-rating')
+def assign_rating():
+  user = request.args.get('userid')
+  trip = request.args.get('tripid')
+  rating = request.args.get('rating')
+  stmt2 = "UPDATE Trips SET (drating) = ({}) WHERE tid={}".format(rating, trip)
+  try: 
+      cursor = g.conn.execute(stmt2)
+      data = {'error': 0, 'data': None}
       return jsonify(data= data)
   except exc.SQLAlchemyError as e:
       data = {'error':1, 'message':str(e)}
