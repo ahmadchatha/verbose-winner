@@ -215,6 +215,18 @@ def assign_rating():
       data = {'error':1, 'message':str(e)}
       return jsonify(data= data)
 
+@app.route('/cancel-trip')
+def cancel_trip():
+  trip = request.args.get('tripid')
+  stmt2 = "DELETE FROM Trips T WHERE T.tid="+trip+";" 
+  try: 
+      cursor = g.conn.execute(stmt2)
+      data = {'error': 0, 'data': None}
+      return jsonify(data= data)
+  except exc.SQLAlchemyError as e:
+      data = {'error':1, 'message':str(e)}
+      return jsonify(data= data)
+
 @app.route('/save-address')
 def save_address():
   user = request.args.get('id')

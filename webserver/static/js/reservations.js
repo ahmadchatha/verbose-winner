@@ -9,6 +9,8 @@ var Reservations = React.createClass({
       message: null,
       message2: null,
       message3: null,
+      message4: null,
+      ctrip: null,
       curr: null,
       past: null
     };
@@ -16,6 +18,10 @@ var Reservations = React.createClass({
 
   getURLParameter: function(name) {
     return decodeURIComponent((new RegExp('[?|&]' + name + '=' + '([^&;]+?)(&|#|;|$)').exec(location.search)||[,""])[1].replace(/\+/g, '%20'))||null;
+  },
+
+  handleChange1: function(event) {
+    this.setState({ctrip: event.target.value});
   },
 
   handleChange2: function(event) {
@@ -61,6 +67,45 @@ var Reservations = React.createClass({
     });
   },
 
+  handleCancel: function(){
+    var trip_id = this.state.ctrip;
+    Date.prototype.addHours= function(h){
+      this.setHours(this.getHours()+h);
+      return this;
+    }
+    var time = null;
+    var date = null
+    this.state.curr.map(function(item){
+      if (item[7] == trip_id){
+        date = item[0];
+        time = item[1];
+      }
+    });
+    var today = new Date();
+    if(Date.parse(new Date().addHours(6)) > Date.parse(date + ' '+ time)){
+      this.setState({message4: 'You can only cancel before 6 hours of reservation time.'});
+      return;
+    }
+    var url = '/cancel-trip?userid='+this.state.userid+'&tripid='+this.state.ctrip;
+    $.ajax({
+      url: url,
+      dataType: 'json',
+      success: function(data) {
+        if(data.data.error == 0){
+          this.getCurrent();
+          this.setState({message4: 'Cancelled.'});
+        }
+        else{
+          this.setState({message4: data.data.message});
+        }
+      }.bind(this),
+      error: function(xhr, status, err) {
+        this.setState({message4: 'Could not Cancel.'})
+        console.error(this.props.url, status, err.toString());
+      }.bind(this)
+    });
+  },
+
   getPast: function(){
     $.ajax({
       url: '/get-past?id=' + this.state.userid,
@@ -97,6 +142,15 @@ var Reservations = React.createClass({
     return (
       <div>
         <h1>Current Reservations</h1>
+        <h3>Cancel</h3>
+          <form className="form-inline">
+            <div className="form-group">
+              <label style={divStyle}>Trip id</label>
+              <input type="text" className="form-control" style={divStyle} onChange={this.handleChange1} id="exampleInputName6" placeholder="123" value={this.state.ctrip}/>
+            </div>
+            <button type="button" onClick={this.handleCancel} className="btn btn-default" style={divStyle}>Cancel</button>
+          </form>
+          <h3 style={messageStyle}>{this.state.message4}</h3>
         <table className="table table-bordered">
         <thead>
         <tr><td>Date</td><td>Time</td><td>Type</td><td>Distance/Hours</td><td>Pickup</td><td>Dropoff</td><td>$ Amount</td><td>Trip id</td><td>Driver Name</td><td>Driver Phone</td></tr></thead>
